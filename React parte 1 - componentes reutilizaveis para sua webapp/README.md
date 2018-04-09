@@ -1,4 +1,4 @@
--------------------------------------------------------------------------
+﻿-------------------------------------------------------------------------
 <h1>Seção 01 - Criando e configurando o projeto</h1>
 
 <h2>Explicação do Projeto</h2>
@@ -185,7 +185,8 @@ Já subimos a nossa aplicação, configurou o ambiente, falamos do Node.js e do 
 Com o comando npm start vamos subir a aplicação. Ao usarmos o create-react-app, ele trouxe um servidor simples que subiu o nosso HTML rapidamente. Desta forma, tornou-se possível acessá-lo usando uma porta.
 
 Outro ponto é que quando rodamos o npm start, ele executara um comando. Quando criamos um projeto que rodará dentro do Node e usa o npm, automaticamente, será gerado um arquivo chamado package.json que terá as explicações do seu projeto.
-```
+```html
+
 {
   "name": "cdc-admin",
   "version": "0.1.0",
@@ -207,6 +208,7 @@ Outro ponto é que quando rodamos o npm start, ele executara um comando. Quando 
     "extends": "./node_modules/react-scripts/config/eslint.js"
   }
 }
+
 ```
 Temos o nome do projeto, a versão, as dependências que declaramos do projeto. Iremos analisar uma propriedade do arquivo chamada scripts e dentro, uma que chama start. Quando executarmos npm start no Terminal, ele deve executar o comando react-scripts start.
 
@@ -215,20 +217,24 @@ O create-react-app criou a pasta node_modules e podemos ver que uma grande quant
 Node_module
 
 Dentro da pasta da pasta react-script, encontraremos a bin, que quando selecionada, veremos react-scripts.js. O arquivo executará os comandos necessários para o create-react-app, podemos ver que ele chamará o node.
-```
+```html
+
 var result = spawn.sync(
   'node',
   [require.resolve('.../scripts/' + script)].concat(args),
   {stdio: 'inherit'}
 );
+
 ```
 
 Outro ponto que você deve observar está no arquivo index.js.
-```
+```html
+
 ReactDOM.render(
   <App />
   document.getElementById('root')
 );
+
 ```
 A linha <App /> é uma marcação XML, que se fosse simplesmente declarado no código JS não seria válido.
 
@@ -237,7 +243,8 @@ Com o React, nós escrevemos uma linguagem escrita sobre JS. Nós utilizamos a l
 JSX github
 
 Porém, o seguinte trecho do App.jstambém não seria válido dentro de um componente do React.
-```
+```html
+
   <div className="App">
     <div className="App-header">
       <img src={logo} className="app-logo" alt="logo" />
@@ -247,6 +254,7 @@ Porém, o seguinte trecho do App.jstambém não seria válido dentro de um compo
       To get started, edit <code>src/App.js</code> and save to reload.
     </p>
   </div>
+
 ```
 Precisamos conseguir transformar este código não válido, para outro em JS que seja aceito.
 
@@ -261,7 +269,8 @@ Aula 1_Babel entrada e saida
 Seria desanimador ter que escrever este código.
 
 O Babel também nos ajudará a escrever classes, usando herança, graças aos imports da versão mais nova do JS.
-```
+```html
+
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
@@ -283,6 +292,7 @@ class App extends Component {
 }
 
 export default App;
+
 ```
 Nós podemos declarar uma biblioteca e importar os módulos expostos por esta. Todas estas features não funcionariam automaticamente dentro do Node.
 
@@ -297,8 +307,2844 @@ Aula 1_Failed to compile
 Observe que ele apontou a falha de compilação no console.
 
 Apenas esses benefícios já fariam valer a pena usar o create-react-app, porém, mais adiante conheceremos outros benefícios. Veremos como o seguintes imports serão suportados:
-```
+```html
+
 import logo from './logo.svg';
 import './App.css';
+
 ```
 Conheceremos bem o que é feito pelo framework e ver que as coisas não acontecem magicamente no nosso código.
+
+
+<h2>Um pouco sobre webpack</h2>
+
+No vídeo anterior comentamos sobre o JSX, o Babel e outros elementos que vieram incorporado pelo create-react-app e que não seriam tão fáceis de serem configuradas manualmente. Encontramos alguns itens na versão mais nova do JavaScript no nosso código.
+```html
+
+import React, { Component } from 'react';
+import logo from './logo.svg';
+import "./App.css";
+
+class App extends Component {
+  render() {
+    return (
+      <div className="App">
+        <div className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <h2>Welcome to React</h2>
+        </div>
+        <p className="App-intro">
+          To get started, edit <code>src/App.js</code> and save to reload.
+        </p>
+      </div>
+    );
+  }
+}
+export default App;
+
+```
+Lembre-se que se você não domina ainda JavaScript Avançados, temos uma série de cursos na Alura!
+
+Então, nós temos a sintaxe de import. Está é uma das maiores vantagens do React, ele permite criar boa parte do código usando sintaxe que será suportada, por exemplo, pelo Babel. Mas o diferencial é que instalamos o React como módulo do Node.Js - não foi necessário baixar o JavaScript. Após a importação, o seu código já funcionará "magicamente" no navegador.
+
+Vamos ver o que o create-react-app teve que configurar:
+
+
+
+No entanto, o HTML que roda no navegador não é o mesmo que está no arquivo index.html. A seguinte linha no fim do script recebeu uma alteração.
+
+<script type="text/javascript" src="/static/js/bundle.js"></script></body>
+Ele adicionou o bundle.js, arquivo JS que foi gerado e possibilita que a sua aplicação funcione no navegador. Iremos nos aprofundar mais no assunto.
+
+O Babel irá transformar boa parte do código em JS que irá rodar no Node.Js. Os imports que vimos no nosso código não irão ser usados no navegador. Na versão mais atual do JavaScrit, é possível importar módulos, funções e classes.
+
+Você pode ver mais visitando a página do Mozilla Develloper Network e ir na seção Export.
+
+Mesmo que o código do index.html seja convertido pelo Node, que não funcionará no navegador. No código teremos que importar logo.svg, que não é suportado em nenhuma versão do JS.
+```html
+
+import React, { Component } from 'react';
+import logo from './logo.svg';
+import "./App.css";
+
+```
+Observe que importamos CSS em um arquivo JS, tudo isso seria impossível, mas nós conseguiremos que ele funcione.
+
+Um detalhe ainda não citado, como estamos usando o JSX, a definição das classes que queremos no nosso HTML, precisam estar acompanhadas do className:
+```html
+
+<div className="App">
+  <div className="App-header">
+    <img src={logo} className="App-logo" alt="logo" />
+    <h2>Welcome to React</h2>
+  </div>
+  <p className="App-intro">
+    To get started, edit <code>src/App.js</code> and save to reload.
+  </p>
+</div>
+
+```
+Isto acontece, porque class se tornou palavra reservada do JavaScript. Podemos notar outros pontos que deveriam impedir o funcionamento, como os imports de módulos que estão na parte do navegador, mas deveriam estar na parte de Back-End. O responsável pela "mágica" é o Webpack.
+
+
+
+Ele irá converter tudo que escrevemos e não deveria rodar no navegador, como podemos ver no diagrama abaixo:
+
+<img src="imgs/Aula+1_4_Webapack+conversões.png"/>
+
+Ele irá pegar o SVG e o CSS e colocará no bundle.js. Você pode analisar todo o contudo gerado no arquivo, mas é um código gerado pela ferramenta. A sugestão é que você entenda que o código foi gerado pelo Webpack, mas compreender cada uma das linhas não é importante (a menos que você tenha o desejo de desenvolver plugins para o Webpack ou Babel).
+
+Então, precisamos saber que apenas o Babel não faria o código funcionar no navegador. Uma outra opção além do create-react-app é a ferramenta chamada Browserify.
+
+
+
+Ele é usado com o mesmo objetivo que o Webpack. É provável que no futuro, ferramentas como estas que apresentamos não sejam mais necessárias e os navegadores conseguiram suportar as versões mais atuais do JavaScript.
+
+Então, aproveite para visitar o site do Mozilla e pesquise sobre como importar e exportar um módulo. No nosso projeto, dentro do arquivo React.js, vemos que está sendo exportado o React:
+
+ module.exports = React;
+O Webpack irá englobar tudo isso e colocar no arquivo bundle.js.
+
+Antes de seguir para a próxima aula, dê uma olhada no projeto na aplicação. Nós ainda criaremos outras classes e nos aprofundaremos no React. Conheceremos elementos mais específicos no decorrer do curso. Aproveite e faça os exercícios!
+
+<h2>O que nos leva a criar uma aplicação com o React</h2>
+Durante a aula debatemos alguns motivos para uma empresa decidir criar uma aplicação usando uma tecnologia como o React, que favorece a construção de Single Page Applications(aplicações que possuem uma página só). Assinale a alternativa que contém todas opções discutidas.
+
+R: Separação de times, reaproveitamento de API's e telas com muitos pontos de atualização
+Quando você decide construir uma aplicação que vai ser inteiramente baseada em Javascript, HTML e CSS a primeira coisa que você ganha é um time super focado nesses itens. Claro que você pode possuir pessoas que dominem backend e frontend, mas não é incomum você ter pessoas com mais habilidade em um lado ou outro.
+
+O segundo ponto é que se a sua aplicação vai ser acessada por diferentes tipos de clientes, como: android, iOS, navegador ou uma aplicação terceira, você ficou obrigado a disponibilizar os dados em um formato diferente de respostas HTML. O formato mais usado hoje em dia é o JSON e nesse caso frameworks Javascript se integram muito bem.
+
+O terceiro ponto é quando você possui telas que, em função de um evento, precisam ter alguns pontos atualizados. Quanto mais complexa é a tela, mais complicado isso fica. O React deixa esse tarefa consideravelmente mais simples. Você vai atualizar uma informação e vai avisar a ele que agora uma atualização é necessária.
+
+Pode ser que seu projeto decida usar o React pelos três motivos, ou talvez até por apenas um. Apenas lembre que é importante você usar a ferramenta por conta de uma necessidade específica.
+
+
+------------------------------------------------------------------------------
+<h1>Seção 02 - Definindo a estrutura do html do cadastro de autor</h1>
+
+<h2>Importando CSS</h2>
+
+Nós já conseguimos importar o projeto, mostramos um pouco de tudo que o create-react-app pode fazer. Ele trouxe parte do Webpack que pegou o nosso código escrito para Node.js e transformou em um código que pudesse rodar no navegador. Usamos também o Babel que fez as transformações de JSX para códigos válidos.
+
+Agora, vamos começar a deixar a aplicação com a cara que desejamos. Usaremos um projeto que tem vários CSS prontos, chamado Pure CSS - mais simples que o Bootstrap.
+
+Pure CSS
+
+O projeto é bastante simples, usaremos um layout semelhante ao do Pure CSS, teremos a navegação no menu da lateral esquerda, enquanto o cadastro estará no conteúdo central da página.
+
+Primeiramente, faremos o download do arquivo .zip do Pure CSS. Você encontrará explicações clicando aqui. O site também oferece o CSS de estilos prontos, nós aproveitaremos o Responsive Side Menu.
+
+Aula 2_Pure Css Responsive Side Menu 
+
+Os arquivos serão salvos na pasta Downloads.
+
+Pasta de Dwnloads
+
+Queremos entrar na pasata pure-release-0.6.0 e depois, selecionar o pure-min.css.
+
+pure min
+
+Vamos voltar para o Terminal. Lembrando que todos os arquivos referentes ao código-fonte, guardaremos no src.
+
+Vamos criar uma nova pasta css.
+
+Alura-Azul: src alura$ pwd
+/Users/alura/Documents/alberto/cdc-admin/src
+Alura-Azul:src alura$ mkdir mkdir css
+Depois, navegaremos dentro dessa pasta.
+
+Alura-Azul: css alura$ pwd
+/Users/alura/Documents/alberto/cdc-admin/src/css
+Alura-Azul:css alura$ cp ~/Downloads/pure-release-0.6.0/
+Em seguida, vamos entrar e copiar o pure-min.css.
+
+Alura-Azul:css alura$ cp ~/Downloas/pure-release-0.6.0/pure-min.css
+Após fazermos a cópia, navegaremos para layouts.
+
+Alura-Azul:css alura$ cp ~/Downloads/pure- .
+pure-layout-side-menu/     pure-release-0.6.0/
+pure-layout-side-menu.zip  pure-release-0.6.0.zip
+Alura-Azul:css alura$ cp ~/Downloads/pure-layout-side-menu/css/layouts/side-menu.css .
+Alura-Azul:css alura$
+Vamos copiá-lo igualmente.
+
+Alura-Azul:css alura$ ls -l
+total 56
+-rwxr-xr-x@ 1 alura  staff   17286 Sep 5 15:38 pure-min.css
+-rwrr-xr-x@ 1 alura  staff    5016 Sep 5 15:38 side-menu.css
+Alura-Azul:css alura$
+Agora, copiamos os dois arquivos CSS. Até o momento, estamos importando um arquivo App.css, que já existia desde que baixamos o create-react-app.
+
+App css
+
+Mas não queremos usar este arquivo.
+
+Este importe de CSS só será possível, porque o Webpack transforma o CSS em um código JS. Na documentação do JavaScript não existe nenhuma especificação que nos permita importar CSS.
+
+O arquivo que queremos importar é o pure-min.css.
+
+```html
+
+import React, { Component } from 'react';
+import logo from './logo.svg';
+import './css/pure-min.css';
+import './css/side-menu.css';
+
+```
+Observe que também importaremos o arquivo side-menu.css.
+
+Para verificarmos se tudo corre bem, podemos usar o comando start na pasta padrão. Ele subirá o projeto, e irá inicializá-lo no servidor de desenvolvimento.
+
+Compilado com sucesso
+
+Agora, que já temos o CSS importado, vamos começar a brincar com o React. Nós já citamos que ele é muito utilizado para a construção de páginas e seus componentes. Vimos também que com ele podemos escrever HTML, dentro do JS. Vamos voltar para o nosso arquivo HTML e apagar o extenso comentário que havia nele. Observe que temos uma div de marcação: id="root". Ele irá procurar automaticamente o index.js dentro da pasta src. Depois, ele importará itens do React. Temos dois módulos baixados: react e o react-dom.
+
+Você também teria a opção a opção de baixar o React e criar manualmente a estrutura. Nós pulamos esta parte, mas no fim do curso veremos detalhadamente.
+
+Usando o create-react-app, nós estamos rodando o código basicamente usando o Node.js. Nele, nós instalamos módulos, que carregam classes expostas por estes. Existem dois módulos que vamos usar com maior frequência: o ReactDOM é uma classe que cria os elementos em memória e simula o DOM do seu navegador. Também precisaremos do módulo React, que permite criar novos componentes.
+
+No github do Facebook, vemos que é possível criar novos elementos diretamente. Vamos acessar a documentação que é bastante detalhada.
+
+criar elemento diretamente
+
+Nós vemos como poderíamos criar uma li ou uma ul, mas como usamos o JSX não foi necessário. Mas até aqui, estaríamos utilizado tags normais do HTML.
+
+Mas vamos consultar na documentação o que seria necessário para criar novos componentes.
+
+ReactComponents
+
+Vemos que a classe React tem um método chamado createClass, com ele podemos criar os nossos componentes.
+
+Se acessarmos o arquivo App.js, veremos que estamos criando um Component.
+
+```html
+
+class App extends Component{
+  render() {
+    return (
+      <div className="App>"
+        <div className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <h2>Welcome to React</h2>
+        </div>
+        <p className="App-intro">
+          To get started, edit <code>src/App.js</code> and save to reload.
+        </p>
+      </div>
+    );
+  }
+
+```
+
+E além de importarmos o módulo React, faremos o import do Component que está dentro do módulo React do Node.js:
+
+import React, { Component } from 'react';
+Se vamos escrever o Component em classes, faremos o extends Component. Se formos usar a sintaxe do JavaScript mais antigo, será preciso invocar o método createClass e depois, passaremos as diversas funções que serão chamadas durante a construção da View. Por enquanto, a mais relevante é a função render().
+
+Vamos ver o render(), no arquivo index.js:
+
+```html
+
+ReactDOM.render(
+  <App />,
+  document.getElementById('root')
+);
+
+```
+Nós estamos importando o módulo App.
+```html
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import './index.css';
+
+```
+Que exportará a si mesmo no fim do arquivo App.js.
+
+export default App;
+Como ele exporta por default não é preciso usar as chaves ({}) quando vamos importar no index.js.
+
+Já o Component não é o módulo default do react, precisamos especificar que queremos o Component no App.js.
+
+import React, { Component } from 'react';
+Nós importamos o módulo App, o que permite usar JSX que irá transformar a chamada de tag < App/> em React.createElement() passando como parâmetro o módulo. Vemos o que acontecerá por debaixo do pano, na documentação do React.
+
+documentação React.createElement
+
+O módulo App exportará a classe que herda de Component, como vimos no App.js.
+
+class App extends Component {
+}
+E então, a mágica começa a acontecer. Na DOM virtual será criado o seu componente.
+
+Agora, qual método será chamado na class App? O que será retornado pelo render(). Por isso, precisamos que ela esteja definida na nossa classe.
+
+Porém, nós queremos retornar outro HTML. Vamos no pure-layout-side-menu, depois em index.html e então, selecionaremos o layout padrão do código. A parte selecionada começará a partir da seguinte linha:
+
+<div id="layout">
+Copiaremos tudo, até o fechamento da <div>. Atualmente, o arquivo App.js, está assim:
+```html
+
+class App extends Component{
+  render() {
+    return (
+
+    );
+  }
+}
+ export default App;
+
+```
+Em seguida, vamos colar o HTML copiado do index, logo após o return. Fizemos a proeza de usar código HTML em um arquivo de formato JavaScript. Se não pudéssemos fazer isto, nunca poderíamos usar o React.
+
+Mas se formos testar no navegador, teremos problemas com a compilação.
+
+falha na compilação
+
+Vemos na mensagem que o token é inválido. Esse comentário de HTML não é aceito. Se quisermos manter o comentário, teremos que fazer um código dinâmico, usando as chaves({}).
+
+  { /*Menu toggle*/}
+Criamos um comentário comum de JS. Ele já será aceito pelo navegador, mas faltaram coisas para serem alterados.
+
+Falha na compilação 2
+
+Ele apontou que falta fechar algumas tags. Vamos começar pela linha 52 que tem um <img>. Podemos ter um código XML no código JavaScript, mas para que ele seja válido precisamos fechar as tags.
+
+Depois, veremos um outro tipo de mensagem.
+
+Compiled with warning
+
+Este problema com o warning nós resolveremos mais adiante. É um caso de propriedade duplicada, então por enquanto, não veremos isso. Não é um erro, mas sim um aviso.
+
+Se testarmos a página no navegador, veremos que ela foi carregada...
+
+Previa pagina
+
+Mas sem o CSS. Isto aconteceu porque utilizamos o class para definir a classe dos elementos no arquivo App.js.
+
+<a href="#menu" id="menuLink" class="menu-link">
+Já explicamos que o class é uma palavra reservada do ECMAScript. No JSX, precisamos substituir por className. Nós podemos usar o "Find > Replace" do editor ou fazer as alterações manualmente. A parte inicial do código ficará assim:
+```html
+
+import React, { Component } from 'react';
+import './css/pure-min.css';
+import './css/side-menu.css';
+
+class App extends Component {
+  render() {
+    return (
+<div id="layout">
+//...
+
+```
+Lembre-se de que o JSX suporta marcação HTML, mas o atributo class das tags HTML já é uma palavra reservada.
+
+Observe que não substituímos a class do App, porque se trata da classe em si.
+
+Se rodarmos a página no navegador, já veremos que o CSS foi carregado.
+
+Pagina com css
+
+Até aqui começamos a mexer com o React, herdamos de Components, pedimos para ReactDOM renderizar. Nós adicionaremos o layout padrão do cadastro mais adiante.
+
+
+<h2>HTML cadastro</h2>
+
+Agora que já conseguimos importar o pure-css, aplicamos o CSS do projeto e já adicionamos o componente do React funcionando, vamos deixar a tela central com o conteúdo do cadastro.
+
+Pagina com css
+
+Nós criamos um único componente, chamado App que está sendo utilizado pelo arquivo index.js. Trata-se de uma classe que herda de Component. Também implementamos o método render().
+
+Em seguida, queremos adicionar o nosso cadastro e não o conteúdo que visualizamos na parte central.
+
+Vamos começar fazendo algumas alterações no header. Depois, retiraremos a classe content, que contem o conteúdo atual da parte central da página.
+```html
+
+< div id="main">
+    <div className="header">
+        <h1>Home</h1>
+    </div>
+</div>
+
+```
+Vamos alterar o número de itens do menu da lateral. Dentro da <ul>, deixaremos um <li> apenas para "Autores" e "Livros".
+```html
+
+<ul className="pure-menu-list">
+    <li className="pure-menu-item"><a href="#" className="pure-menu-link">Home</a></li>
+    <li className="pure-menu-item"><a href="#" className="pure-menu-link">Autor</a></li>
+    <li className="pure-menu-item"><a href="#" className="pure-menu-link">Livro</a></li>
+</ul>
+
+```
+Agora, o nosso menu ficará assim:
+
+Menu com 3 itens
+
+Temos um Websocket rodando que o servidor do create-react-app fornece.
+
+websocket
+
+Tudo o que é alterado no editor, ele já publicará as mudanças.
+
+Para nossa primeira página de cadastro, vamos mudar o texto do <h1> para "Cadastro de autores".
+
+```html
+
+< div id="main">
+    <div className="header">
+        <h1>Cadastro de autores</h1>
+    </div>
+</div>
+
+```
+Temos agora que adicionar o HTML do cadastro. Como suponho que este código não será uma novidade para você, foi disponibilizado nos exercícios (ou aqui o trecho referente ao código.
+
+Iremos copiar o código que começa a partir da linha <div id="main">, depois adicionaremos no arquivo App.js.
+
+Fique atento para não copiar divs a mais no fim.
+
+Se rodarmos no navegador, veremos os campos para o cadastro de autores.
+
+Cadastro de autores 2
+
+Ao clicarmos dentro dos campos e digitarmos os dados, eles serão enviados para a aplicação. Se tivermos problema de autenticação, o usuário precisa ver uma mensagem. E quando o dado for salvo, queremos que apareça na tabela abaixo com a listagem - que deverá ser dinâmica. No código atual, a listagem ainda é estática.
+
+Sem o JSX, teríamos que ser verdadeiros "guerreiros" para conseguir criar tudo o que planejamos fazer. O JSX é extremamente importante para os nosso projetos com o React.
+
+<h2>Qual o principal motivo de usarmos JSX?</h2>
+Usamos o create-react-app para facilitar a configuração da nossa aplicação. Ele já traz junto dele o Babel que é um compilador de código Javascript para Javascript, também chamado de transpiler. Por exemplo, podemos usar sintaxe suportada pelo ES6 e o JSX justamente por conta dele, que já veio configurado com os plugins necessários para essa compilação. Falando especificamente do JSX, qual o motivo da sua utilização?
+
+R: O JSX possibilita que utilizemos sintaxe de XML, HTML por exemplo, como se isso fizesse parte do Javascript
+
+Quando usamos o React, trabalhamos com os componentes que utilizam código HTML diretamente do código Javascript. Até poderia ser usado as funções do próprio React para isso, mas, como vimos, acabaríamos com um código complicado de ler. O JSX nos ajuda justamente nisso, permitindo que escrevamos código "html" que na verdade vai ser convertido para Javascript exigido pelo React. Por sinal, essa conversão só é possível porque já está habilitado o React JSX Transform, do Babel. Confira aqui => http://babeljs.io/docs/plugins/transform-react-jsx/
+
+<h2>Como é que nosso código está funcionando no navegador?</h2>
+
+Durante a apresentação do código gerado pelo create-react-app, vimos que foram usadas classes e imports de módulos. Assinale a alternativa que indica o(s) motivo(s) desse código funcionar no seu navegador.
+
+R: O react-create-app traz junto Babel e o webpack. Essas duas ferramentas, combinadas, possibilitam que todo o código ES6 seja transformado para um Javascript válido no navegador.
+
+O Babel é um famoso transpiler que tem a capacidade, utilizando plugins, de pegar o seu código fonte escrito na versão mais nova do Javascript(ES6) e transformá-lo num código da versão antiga do Javascript(ES5). Por exemplo, a versão recomendada de download do Node.js ainda não implementa todas as funcionalidades do ES6.
+
+Só que esse código Javascript gerado ainda é um código válido para o ambiente de servidor, por exemplo se você estiver usando um Node.js. Como o objetivo é que o código rode no navegador, precisamos de alguém para fazer uma segunda transformação, e é justamente aí que entra o Webpack. Ele vai transformar, por exemplo, as linhas de import de módulo JavaScript e CSS em um código válido no navegador. Como foi explicado no vídeo, essa transformação toda é "cuspida" no arquivo bundle.js.
+
+-------------------------------------------------------------------------------------
+<h1>Seção 03 - Consumindo a API e dando vida a nossa listagem</h1>
+
+<h2>Manutenção estado componente</h2>
+
+Nos importamos o nosso layout e já conseguimos visualizar a versão do cadastro que será utilizada.
+
+Cadastro de autores 2
+
+Porém, ele ainda está estático. Nós somos obrigados a implementar o método render(), porque ele que é invocado pelo React para retornar o pedaço de HTML na View.
+
+Se olharmos no código, vemos que ele está estático. O menu e os campos do formulários devem ser assim mesmo, mas a tabela não. E nisto que iremos trabalhar agora: trabalhar com os dados da tabela dinamicamente. Quando falamos que o React nos ajuda a criar os nossos componentes, e que estes terão vida ou estado, falamos de certas similaridades com orientação de objeto.
+
+Até agora a classe App definiu comportamento, usando a função render(). Como podemos ver no início do arquivo App.js.
+```html
+
+class App extends Component{
+  render() {
+    return (
+      <div id="layout">
+          <a href="#menu" id="menuLink" className="menu-link">
+
+              <span></span>
+          </a>
+
+          <div i="menu">
+              <div className="pure-menu">
+                  <a className="pure-menu-heading" href="#">Company</a>
+                  <ul className="pure-menu-list">
+                      <li className="pure-menu-item"><a href="#" className="pure-menu-link">Home</a></li>
+                      <li className="pure-menu-item"><a href="#" className="pure-menu-link">Autor</a></li>
+                      <li className="pure-menu-item"><a href="#" className="pure-menu-link">Livro</a></li>
+                  </ul>
+//...
+
+```
+O método render() é invocado e depois retornará o trecho de HTML. Lembre-se que estamos usando o JSX, logo será transformado para invocações React.createElemente retornará a versão do DOM que será colocada na página pelo React. Tudo isso se refere a comportamento. No entanto, em orientação para objetos falamos de comportamento e estado - que ainda não foi adicionado na nosso código.
+
+Em seguida, adicionaremos um estado ao Component. Ao misturarmos comportamento e estado, teremos um objeto de verdade. Vamos começar declarando um constructor(). A sintaxe usada será o ECMAScript 6, caso tenha alguma dúvida, consulte nossos cursos de JavaScript Avançado da Alura e fique mais à vontade com o assunto.
+```html
+
+class App extends Component {
+  constructor() {
+    this.state = {lista : []};
+  }
+//...
+}
+
+```
+Observe que utilizamos a variável disponibilizada pelo React, chamada state. Nela, guardaremos o JSON que representa o estado do objeto. Dentro, iremos colocar a lista de autores.
+
+Nós vamos rodar novamente o npm start para subir o servidor de desenvolvimento. E ele indicará que tivemos um falha de compilação. Esta ação evita que o erro só seja descoberto já no navegador.
+
+Erro de compilação
+
+A mensagem nos avisa que não podemos chamar o this antes de usarmos o super(), que a invocação do construtor do Component. Após isto, o this será setado e poderemos utilizá-lo.
+
+```html
+
+class App extends Component {
+  constructor() {
+    super();
+    this.state = {lista : []};
+  }
+//...
+
+```
+Não teremos mais o problema com a compilação, mas não veremos mudança no cadastro. Até aqui, apenas avisamos ao React que guardamos a variável lista associado com o array, no state.
+
+Dado que teremos uma lista, precisamos exibir as informações. Para começar, adicionaremos alguns dados estáticos.
+
+ this.state = {lista : [{nome:'alberto', email:'alberto.souza@caelum.com.br',senha:'123456'}]};
+Agora desceremos no código até a tag <tbody>em que temos outra informação estática.
+
+```html
+
+ <div>
+    <table className="pure-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>email</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Alberto</td>
+          <td>alberto.souza@caelum.com.br</td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+
+```
+Onde tem o código estático com os dados do Alberto, vamos gerar um código dinâmico. Sempre que falarmos em código dinâmico, precisaremos usar as chaves do JSX. Dentro delas, guardaremos o state.
+
+```html
+
+<tbody>
+  {
+    this.state.lista
+  }
+</tbody>
+
+```
+Do array de objetos literais lista nós devolvemos partes de HTML. Para cada novo cadastro que for feito no formulário, teremos que criar uma nova <tr>. No ECMAScript 6 foi incorporada uma função chamada map, usada geralmente quando temos um vetor (uma lista) e queremos mapeá-lo para outro vetor. No nosso caso, queremos mapear a lista de autores, para uma lista de trechos de HTML. E informaremos que vamos retornar uma <tr>, o que significa que devolveremos React.createElement.
+
+```html
+
+<tbody>
+  {
+    this.state.lista.map(function(autor){
+      return (
+        <tr>
+        </tr>
+       );
+      })
+  }
+</tbody>
+
+```
+Para cada linha do autor, vamos exibir o "Nome" e o "Email".
+```html
+
+<tbody>
+  {
+    this.state.lista.map(function(autor){
+      return (
+        <tr>
+          <td>{autor.nome}</td>
+          <td>{autor.email}</td>
+        </tr>
+        );
+      })
+  }
+</tbody>
+
+```
+Vamos compilar e ver se tudo está funcionando bem.
+
+Tabela dinamica
+
+Aparentemente, o nosso código funciona. Mas vamos fazer outro teste. A informação estática que foi preenchida com meu email, vou substitur pelo email "heisenberg@gmail.com".
+
+```html
+
+<tbody>
+ <tr>
+   <td>Alberto</td>
+   <td>heisenberg@gmail.com</td>
+ </tr>
+</tbody>
+
+```
+Tabela dinamica 2
+
+Desta forma que mantemos estados dentro dos nossos componentes. Nós apenas começamos, por enquanto, o estado ainda é estático. Mas já montamos um componente com informações dinâmicas.
+
+Mais adiante, iremos alterar o componente com informações estáticas para que este recupere os dados da API e montando-os em tempo de execução.
+
+
+<h2>Atualização de estado componentes</h2>
+Temos a lista e estamos mantendo o estado dentro do componente. Estamos também usando a variável state, porém ela está sendo inicializada com o valor estático. No entanto, queremos que JSON seja retornado por meio da API.
+
+Vou fazer algumas alterações no código, mas peço que você espere e não programe antes de terminar a leitura das explicações. Em algumas situações, serão apresentados alguns erros e você poderá ser induzidos a cometê-los também. A recomendação é que você complete a aula e depois siga para os exercícios ou modifique o projeto.
+
+Vamos apagar o JSON do state.
+```html
+
+constructor() {
+  super();
+  this.state = {lista : []};
+}
+
+```
+Se a nossa tela for recarregada, não terá mais mais as informações anteriores.
+
+Precisamos que os dados venham de algum lugar para popular a tabela, sem fazer uma nova requisição, considerando que estamos falando de uma single page application. Queremos entrar uma vez na página e não dar reload novamente. Logo, estamos falando de requisições assíncronas, AJAX. Nós usaremos o jQuery para executar os AJAX, porque será a forma mais fácil. Vale ressaltar que poderemos instalar o jQuery como dependência do Node.Js já que estamos usando o create-react-app. Com isso, poderemos importar o módulo como se fosse o ECMAScript 6 e o Webpack transformará isso para versão final do JavaScript que rodará no navegador.
+
+No App.js, vamos importar o jquery.
+
+```html
+
+import React, { Component } from 'react';
+import './css/pure-min.css';
+import './css/side-menu.css';
+import $ from 'jquery';
+
+```
+Observe que demos um apelido (antecedido pelo cifrão $) para o módulo jquery. Veja que também já podemos vê-lo no menu da lateral.
+
+modulo jquery
+
+Nós temos um construtor que é chamado quando o componente é instanciado. Teríamos a opção de já enviar o ajax da jQuery a partir do construtor.
+```html
+
+constructor() {
+  super();
+  this.state = {lista : []};
+  $.ajax({
+      url:"http://localhost:8080/api/autores"
+      dataType: 'json',
+      success:function(resposta){
+        this.state = {lista:resposta};
+      })
+    }
+  );
+}
+
+```
+Nós poderíamos escrever o código do Ajax, incluindo o tipo de dados que esperávamos que seria retornado, e ele funcionaria perfeitamente. Mas faltaria um detalhe, e mesmo assim, funcionaria. No construtor, devemos inicializar valores, qualquer coisa simples do seu componente, como inicializar o estado, por exemplo.
+
+Nós queremos que estes dados sejam carregados e atualizados na tela.
+
+Porém, existe uma questão de boa prática do React para considerarmos. O React fornece funções que serão chamadas em determinados ciclos de vida do componente. Uma delas é componentDidMount() usada quando o componente acabou de ser montado. Ela será chamada logo após o método render() ser invocado pela primeira vez.
+
+Uma outra função é o componentWillMount(), que será chamada antes da invocação do render().
+```html
+
+constructor() {
+  super();
+  this.state = {lista : []};
+
+componentWillMount()
+  $.ajax({
+      url:"http://localhost:8080/api/autores",
+      dataType: 'json',
+      success:function(resposta){
+        this.state = {lista:resposta};
+      }
+    }
+  );
+}
+
+```
+Eu sugiro que você siga as boas práticas do React. Os projetos Reacts do mercado costumam seguir estas práticas. É incomum encontrar projetos que façam Ajax direto do construtor.
+
+Já colocamos o Ajax, agora, se mexermos no estado, precisamos que a tela seja novamente renderizada.
+
+Porém, se testarmos nosso código no navegador, não veremos nada. Se pesquisarmos no Console, ele indicará que ocorreram vários erros.
+
+Aula 3_2_Erros no console
+
+O primeiro erro indicado é o de sintaxe. Isso ocorreu, porque adicionamos um ; a mais na chave abaixo do this.state. Com a correção, nosso código ficará assim:
+```html
+
+constructor() {
+  super();
+  this.state = {lista : []};
+
+componentWillMount(){
+  $.ajax({
+      url:"http://localhost:8080/api/autores",
+      dataType: 'json',
+      success:function(resposta){
+        this.state = {lista:resposta};
+      }
+    }
+  );
+}
+
+```
+Aula 3_2_Cadastro funcionando
+
+Mas veja que não aparece a tabela. No console, veremos que ele tentou fazer uma requisição GET para o endereço da API de autores, mas o nosso sistema está fora do ar.
+
+Vamos até o diretório onde colocamos o arquivo jar-cdc-react.jar.
+
+JAR
+
+Nós disponibilizamos o endereço do Heroku, no entanto, ele destrói os servidores quando eles ficam muito tempo sem serem acessados.
+
+Aula 3_2_herokuapp
+
+Está funcionando, mas eu não recomendo que você dependa do HeroKuapp. Nós poderíamos aproveitar o endereço que vemos na tela, no código. Mas o arquivo JAR tem um servidor embutido. A aplicação já está rodando, e com o Java instalado (veja aqui, como fazer a instalação), você usará o seguinte comando no Terminal:
+
+ Alura-Azul:alberto alura$ java -jar jar-cdc-react.jar
+Minha sugestão é que você faça o download do JAR, clicando aquie rode localmente a aplicação.
+
+Quando ele começar a rodar a sua aplicação, vão aparecer alguns logs no seu Console. Depois, no navegador mudaremos o endereço para localhost:8080/api/autores. Com isso, não dependeremos do servidor estar no ar, porque a aplicação está na sua máquina.
+
+Se tentarmos subir a aplicação no navegador, ele funcionará corretamente, mas também não atualizou a tabela. Este é um ponto importante.
+
+Nós definimos o estado com a variável state, que foi associado ao JSON. Depois, redefinimos a variável state, associando um JSON, mas com a variável lista juntamente com o resposta. A resposta está sendo retornada. Podemos ver isso, adicionando o console.log no código abaixo:
+
+```html
+
+constructor() {
+  super();
+  this.state = {lista : []};
+
+componentWillMount(){
+  $.ajax({
+      url:"http://localhost:8080/api/autores"
+      dataType: 'json',
+      success:function(resposta){
+        console.log(resposta);
+        this.state = {lista:resposta};
+      }
+    }
+  );
+}
+//...
+
+```
+Console log
+
+Vemos três objetos sendo visualizados.
+
+A questão é que sempre que mudemos de estado, o React deve invocar a função render(). Mais adiante, teremos uma explicação profunda sobre o assunto.
+
+Nós queremos modificar o estado e que ele renderize novamente o componente. Poder delegar esta função para o React é uma das grandes vantagens.
+
+Mas seria esperar demais se nós mudássemos uma variável e o React ficasse observando o que está acontecendo. Ele precisaria ter um looping infinito. Iria consumir demais a sua CPU. O melhor é invocarmos uma função do React chamada setState e passe para ele o state com a propriedade que nós queremos que seja atualizada.
+```html
+
+constructor() {
+  super();
+  this.state = {lista : []};
+
+componentWillMount(){
+  $.ajax({
+      url:"http://localhost:8080/api/autores"
+      dataType: 'json',
+      success:function(resposta){
+        console.log(resposta);
+        this.setState({lista:resposta});
+      }
+    }
+  );
+}
+//...
+
+```
+Desta forma, nós informamos para o React que estamos alterando o estado e que ele precisa renderizar novamente o componente.
+
+No entanto, se testarmos novamente, vamos nos decepcionar. A aplicação ainda não vai funcionar.
+
+Aula 3_2_TypeError
+
+Por isso, você recebeu a recomendação de não criar o código durante a explicação.
+
+A mensagem de erro diz:
+
+Uncaught TypeError: this.setState is not a function
+Vamos ver novamente no Console.
+
+Erro com this
+
+O this que aparece no Console tem a ver com a jQuery e não com o React. No entanto, o jQuery não tem a função setState.
+
+Vamos ter que fazer uma alteração muito importante para que o nosso código funcione. Toda função do JavaScript tem um método chamado bind(). Nós iremos usá-lo e informar que o this da função é do React.
+```html
+
+componentWillMount(){
+  $.ajax({
+      url:"http://localhost:8080/api/autores"
+      dataType: 'json',
+      success:function(resposta){
+        console.log(this);
+        this.setState({lista:resposta});
+      }.bind(this)
+  }
+);
+
+```
+Agora, conseguiremos ver a tabela.
+
+tabela dinamica funcionando
+
+Após usarmos setState(), ele chamou o render().
+
+A seguir, veremos um detalhe interessante. Se o WillMount será chamado antes do render(). Vamos ver no Console.
+```html
+
+componentWillMount(){
+  $.ajax({
+      url:"http://localhost:8080/api/autores"
+      dataType: 'json',
+      success:function(resposta){
+        this.setState({lista:resposta});
+        }.bind(this)
+  }
+);
+
+render() {
+  console.log("render");
+  return (
+    <div id="layout">
+//...
+
+```
+Aula 3_2_willMount Console 2 
+
+A mensagem de Warning veremos mais adiante. Agora, veja que ele chamou primeiro o WillMount e depois chamou o render duas vezes, porque nossa chamada é assíncrona. Por isso, ele delegará a execução do Request e em seguida, continuará com a execução. Depois, virá a chamada do render. Para entendermos melhor, vamos ver a mensagem chegou a resposta no Console. E vemos o render novamente.
+```html
+
+componentWillMount(){
+  console.log("willMount");
+  $.ajax({
+      url:"http://localhost:8080/api/autores",
+      dataType: 'json',
+      success:function(resposta){
+        console.log("chegou a resposta");
+        this.setState({lista:resposta});
+        }.bind(this)
+  }
+);
+
+```
+O componente chamará o render() sempre que você chamar o setState(). Isto significa que nós nunca mais precisaremos concatenar as tags <tr> da tabela ou mexer manualmente na estrutura dos elementos. Nós só temos que nos preocupar com o estado e o React se ocupa de fazer a mágica.
+
+Mais adiante, veremos alguns detalhes sobre os ciclos de vida. Nós vimos o componentWillMount(), conheceremos outra função do ciclo de vida que é indicada pela documentação do React para casos em que queremos trabalhar com Ajax. Também veremos por que está aparecendo a mensagem com warning. E veremos uma explicação final sobre o que está sendo retornado.
+
+<h2>Ciclo de vida e DOM virtual</h2>
+
+Nós já criamos a listagem dinâmica. Agora, vamos ver mais alguns detalhes sobre o React.
+
+Anteriormente falamos sobre a função do ciclo de vida do componentWillMount(), que é chamada antes da render() ser invocada. Vamos conhecer mais o que está acontecendo nos bastidores.
+
+Faltou falar sobre um detalhe. O componentWillMount() não executa nenhuma lógica, não faz nenhuma preparação de informações que ficarão armazenadas no estado do componente que já poderá ser aproveitada para primeira invocação do render().
+
+```html
+
+constructor() {
+  super();
+  this.state = {lista : []};
+
+componentWillMount(){
+  console.log("willMount");
+  $.ajax({
+      url:"http//localhost:8080/api/autores"
+      dataType: 'json',
+      success:function(resposta){
+        console.log("chegou a resposta");
+        this.setState = ({lista:resposta});
+      }
+    }
+  );
+}
+//...
+
+```
+Aula 3_3_chegou a resposta
+
+A única coisa que o willMount faz é disparar a requisição assíncrona. O ideal seria que ele fosse utilizado quando fizéssemos uma requisição síncrona. Por exemplo, essa lista poderia ser localizada do local Storage do navegador do seu cliente. Você poderia manter uma lista armazenada local e recuperar os dados. Como a nossa requisição é assíncrona, não faz muito sentido passar por esta função antes de passar pela renderização. Uma função mais apropriada seria a componentDidMount, que só será chamada após a primeira renderização.
+
+```html
+
+
+constructor() {
+  super();
+  this.state = {lista : []};
+
+componentDidMount(){
+  console.log("didMount");
+  $.ajax({
+      url:"http//localhost:8080/api/autores"
+      dataType: 'json',
+      success:function(resposta){
+        console.log("chegou a resposta");
+        this.setState = ({lista:resposta});
+      }
+    }
+  );
+}
+//...
+
+```
+Desta forma, renderizamos o que é necessário, e acabou. Caso seja necessário será feito uma atualização do estado que será refletido em outra renderização do componente.
+
+Podemos consultar a documentação do React LifeCycle, na parte referente aos métodos, veremos que existem outras funções do ciclo do React.
+
+Aula 3_3_Lifecycle Methods
+
+Por exemplo, se a tela for super completa, será que é vantajoso chamar o render para todos os componentes? Pode ser um processo pesado. Para estes casos, temos uma função chamada shouldComponentUpdate.
+
+shouldComponentUpdate
+
+Você pode verificar a documentação e ver mais a respeito.
+
+Warning
+
+A mensagem nos diz que cada linha da tabela, com os vários elementos dentro de um elemento pai (a tabela) deveria ter um identificador. Na verdade, a pergunta é para que ele precisa que cada elemento tenha um identificador próprio. Para entendermos isso, precisamos compreender como o React trabalha. O React, sempre que chamamos o setState(), ele chamará o render(). Entre ele retornar o que foi retornado pelo render e aplicar essa alteração diretamente na página, existe uma distância. O algoritmo dele de atualização do DOM da sua página. A solução mais simples seria chamar o setStages e atualizar o DOM inteiro da página. Ele nem teria a oportunidade de cometer o erro. Porém, se a tela for complexa, existe uma grande chance de ficar lento.
+
+Vamos voltar para o arquivo App.js e entender qual é a grande sacada do React. Lembrando que nós estamos usando um plugin do Babel que transformará um código JSX para outro que seja válido em JavaScript e para uma chamada do React.
+
+```html
+
+render() {
+  console.log("render");
+  return (
+    React.createElement("div",{id:"layout"},React.createElement("a",{}))
+    <div id="layout">
+        <a href="#menu" id="menuLink" className="menu-link">
+            <span></span>
+        </a>
+        <div id="menu">
+//...
+
+```
+Com o React não retornaremos strings diretamente. Nós retornaremos vários elementos do React, que chamamos de React Elements. São eles que compõem o que chamamos de DOM virtual. Você encontrará mais ao respeito, na documentação.
+
+A função render() retornará um conjunto de objetos do React - ou seja, parte do Virtual DOM. Ele pega o que foi retornado e avalia com Virtual DOM que está aplicado neste exato momento. Se tiver distinção, então ele irá alterar o estado do DOM real da sua tela.
+
+Para isto, foi criado um algoritmo para que esse processo fosse realizado o mais rápido possível. Se a render() ora retornar uma <div> ou <table>, será fácil identificar essa diferenciação. A dificuldade estará nos casos em que sempre retornamos uma <tbody> com cinco <tr>s, mas com o conteúdo diferente. Para que ele identifique essa mudança será preciso o que é chamado de reconciliação (você encontrará mais a respeito nesta parte da documentação).
+
+Ele precisará retirar o diff, ver se houve alguma mudança e fazer a alteração se for necessário. Quando temos elementos filhos que se repetem dentro de um pai, a sugestão é que adicionemos uma propriedade chama key no elemento.
+
+```html
+
+<tbody>
+{
+    this.state.lista.map(function(autor){
+      return (
+        <tr key={autor.id}>
+          <td>{autor.nome}</td>
+          <td>{autor.email}</td>
+        </tr>
+      );
+    })
+  }
+</tbody>
+
+```
+Observe que usamos um valor que sabemos que se repete, no caso o id do autor. Se o seu objeto não tem id, concatene informações, use a função de hash e que gere um valor único.
+
+No nosso exemplo, ficou fácil, porque ele precisa apenas identificar se o id modificou dentro dos <tbody>, ele simplesmente aplicará a alteração.
+
+Vamos abordar um último tópico.
+
+No nosso código, onde nós concatenamos elementos do nosso DOM? Quando carregamos a lista, onde demos um append na tabela? Ou onde você jogaria o código de um remove da linha? Nós não fizemos isso.
+
+Nós apenas retornamos vários React Elements, e em um determinado ponto, nós estamos concatenando um código dinâmico que também irá gerar vários elementos do próprio React.
+
+Porém, no nosso caso, o código não mudará. O que será alterado é o estado. Sempre que o setState() for chamado, o React invocará a função render(). Costumamos dizer que não manipulamos os elementos com o React, nós declaramos como queremos que um trecho de HTML se comporte. Então, o React será responsável pela manipulação em função das suas invocações do setState. Esta é uma informação super importante. Nós declaramos um comportamento, e o estado do componente indicará o que o React deverá fazer. Ele invocará o render() novamente, será aplicado um novo estado no seu componente, talvez seja gerado um novo Virtual DOM. Logo, ele irá aplicar as aplicações na página.
+
+Meu objetivo era aprofundar mais nestes detalhes.
+
+Faça os exercícios e depois, continue com os cursos!
+
+<h2>Ciclo de vida do componente do React</h2>
+Para que nossa listagem aparecesse na tela tivemos que entender um pouco sobre ciclo de vida do React. Assinale a alternativa que possui as funções do ciclo de vida que foram utilizadas.
+
+R: render e componentWillMount
+
+Entender o ciclo de vida do React é muito importante. São essas funções que te dão a chance de interagir com ele. Na maior parte da sua vida, você vai utilizar o render e o componentDidMount. Justamente porque em um você declara o componente em si e no outro você carrega o que pode ser necessário para ele. Entretanto, quando seu projeto evoluir e ficar maior, talvez surja a necessidade você ter que lidar com outras funções do ciclo de vida, como a shouldComponentUpdate. Ela indica para o React se seu componente deve ser renderizado e por default retorna true. Numa tela super complexa, evitar invocações desnecessárias para o render, pode fazer diferença.
+
+Esses detalhes mais avançados, vão ficar para um segundo curso, ainda temos muito do básico do React para ver nesse primeiro curso!
+
+<h2>Como associamos o estado a um componente?</h2>
+Para montarmos nossa listagem, puxamos os dados de um serviço que nos retorna um JSON com a listagem e ensinamos ao React que ele deve usar esses dados. Assinale a alternativa que indica como isso é feito.
+R: Guardamos um JSON na variável state, disponibilizada pelo próprio React. Depois só alteramos os valores desse JSON através da função setState.
+
+O uso da variável state vai ser uma constante na sua vida programando com o React. Sempre teremos algum componente que vai precisar manter um estado e que precisará ter esse estado atualizado, como já veremos no próximo capítulo :).
+
+```html
+
+import React, { Component } from 'react';
+import './css/pure-min.css';
+import './css/side-menu.css';
+import $ from 'jquery';
+
+class App extends Component {
+
+  constructor() {
+    super();    
+    this.state = {lista : []};
+  }
+
+  componentDidMount(){
+    console.log("didMount");
+    $.ajax({
+        url:"http://localhost:8080/api/autores",
+        dataType: 'json',
+        success:function(resposta){    
+          console.log("chegou a resposta");          
+          this.setState({lista:resposta});
+        }.bind(this)
+      } 
+    );          
+  }
+
+  render() {
+    console.log("render");        
+    return (
+      <div id="layout">
+
+          <a href="#menu" id="menuLink" className="menu-link">
+
+              <span></span>
+          </a>
+
+          <div id="menu">
+              <div className="pure-menu">
+                  <a className="pure-menu-heading" href="#">Company</a>
+
+                  <ul className="pure-menu-list">
+                      <li className="pure-menu-item"><a href="#" className="pure-menu-link">Home</a></li>
+                      <li className="pure-menu-item"><a href="#" className="pure-menu-link">Autor</a></li>
+                      <li className="pure-menu-item"><a href="#" className="pure-menu-link">Livro</a></li>
+
+
+                  </ul>
+              </div>
+          </div>
+
+              <div id="main">
+                  <div className="header">
+                    <h1>Cadastro de Autores</h1>
+                  </div>
+                  <div className="content" id="content">
+                    <div className="pure-form pure-form-aligned">
+                      <form className="pure-form pure-form-aligned">
+                        <div className="pure-control-group">
+                          <label htmlFor="nome">Nome</label> 
+                          <input id="nome" type="text" name="nome" value=""  />                  
+                        </div>
+                        <div className="pure-control-group">
+                          <label htmlFor="email">Email</label> 
+                          <input id="email" type="email" name="email" value=""  />                  
+                        </div>
+                        <div className="pure-control-group">
+                          <label htmlFor="senha">Senha</label> 
+                          <input id="senha" type="password" name="senha"  />                                      
+                        </div>
+                        <div className="pure-control-group">                                  
+                          <label></label> 
+                          <button type="submit" className="pure-button pure-button-primary">Gravar</button>                                    
+                        </div>
+                      </form>             
+
+                    </div>  
+                    <div>            
+                      <table className="pure-table">
+                        <thead>
+                          <tr>
+                            <th>Nome</th>
+                            <th>email</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {
+                            this.state.lista.map(function(autor){
+                              return (
+                                <tr key={autor.id}>
+                                  <td>{autor.nome}</td>
+                                  <td>{autor.email}</td>
+                                </tr>
+                              );
+                            })
+                          }
+                        </tbody>
+                      </table> 
+                    </div>             
+                  </div>
+                </div>            
+
+
+      </div>     
+    );
+  }
+}
+
+export default App;
+
+```
+
+<h1>Seção 04 - Cadastrando novos autores e atualização de componentes</h1>
+
+<h2>Evento</h2>
+
+Nossa tabela está funcionando e recuperando os dados dinamicamente. Chegou o momento de cadastrarmos informações no nosso formulário. Nós queremos adicionar os dados do "Nome", "Email" e "Senha" e queremos gravá-los.
+
+Cadastro de Autores
+
+No momento em que clicamos no botão gravar, estamos recarregando os dados, que serão reenviados via GET. Primeiramente, teremos que modificar isso. Nós não queremos que a página seja recarregada, queremos que tudo seja feito via AJAX. Para isto, precisamos de um evento associado ao Submit do formulário. O React nos fornece eventos específicos que serão mapeados para eventos do nosso DOM real. Então, temos uma propriedade chamada onSubmit que poderá ser adicionada no formulário. Vamos inclui-la na tag form, que está dentro do main do arquivo App.js.
+
+```html
+
+<div id="main">
+                  <div className="header">
+                    <h1>Cadastro de Autores</h1>
+                  </div>
+                  <div className="content" id="content">
+                    <div className="pure-form pure-form-aligned">
+                      <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
+                        <div className="pure-control-group">
+                                    <label htmlFor="nome">Nome</label>
+                                    <input id="nome" type="text" name="nome" value=""/>
+                                </div>
+                                <div className="pure-control-group">
+                                    <label htmlFor="email">Email</label>
+                                    <input id="email" type="email" name="email" value=""/>
+                                </div>
+                                <div className="pure-control-group">
+                                    <label htmlFor="senha">Senha</label>
+                                    <input id="senha" type="password" name="senha"/>
+                                </div>
+                                <div className="pure-control-group">
+                                    <label></label>
+                                    <button type="submit" className="pure-button pure-button-primary">Gravar
+                                    </button>
+                                </div>
+                      </form>
+
+```
+
+Observe que no onSubmit, nós chamamos a função enviaForm, porque queremos enviar os dados via AJAX. Por isso também, o método de envio de formulários será post. Antes do render, criaremos a função enviaForm e o evento que gerou o disparo da função.
+
+```html
+
+enviaForm(evento){
+}
+
+render() {
+  console.log("render");
+  return (
+    React.createElement("div",{id:"layout"},React.createElement("a",{}))
+    <div id="layout">
+        <a href="#menu" id="menuLink" className="menu-link">
+            <span></span>
+        </a>
+
+```
+Trata-se de um evento do React e não do DOM "real". Na documentação, eles são chamados de SyntheticEvents - eventos do React que mapeiam para eventos reais, incluindo o Submit. Vamos incluir um console.log() e ver o que está acontecendo e apagaremos os adicionados anteriormente.
+```html
+
+componentDidMount(){
+  console.log("didMount");
+  $.ajax({
+      url:"http//localhost:8080/api/autores",
+      dataType: 'json',
+      success:function(resposta){
+        this.setState = ({lista:resposta});
+      }.bind(this)
+    }
+  );
+}     
+enviaForm(evento){
+  console.log("dados sendo enviados");
+}
+
+```
+Após nos certificarmos de que tudo está compilando bem, vamos subir a aplicação e analisar o console. Também deixaremos marcada a opção "Preserve log".
+
+Dados sendo enviados
+
+A página ainda é recarregada, mas o evento foi chamado. Mas precisamos que a página não seja mais recarregada. Nós adicionamos um evento, mas que continua sendo propagado, da mesma forma que seria feito no DOM "real". Queremos que ele mapeie a função preventDefault, ela indicará quando não desejamos que um evento continue sendo propagado.
+```html
+
+enviaForm(evento){
+  evento.preventDefault();
+  console.log("dados sendo enviados");
+}
+
+```
+Vamos clicar novamente em "Gravar" e ver o que acontecerá.
+
+dados sendo enviados 2
+
+Agora a página já não foi recarregada. Resolvemos essa parte. Próximo passo, precisamos dos dados que serão enviados para fazer a nossa requisição.
+
+Novamente, sugerimos que você espere a conclusão da explicação para começara a trabalhar com o código.
+
+Usamos o preventDefault, recebemos o evento do formulário, e queremos enviar os dados. Para isto, vamos enviar um AJAX por meio de uma jQuery. Adicionaremos o JSON. Lembrando que você não precisa memorizar todas as funções ou variáveis usadas, ainda que com a prática você irá aprendê-las. Mas é sempre possível recorrer a uma material de consulta. No entanto, é necessário saber como elas funcionam.
+
+No código, usaremos a propriedade url, além disso queremos que os dados sejam enviados e respondidos no formato JSON. E o contentType irá avisar como os dados serão enviados e o dataType, informa o formato da resposta. O tipo de requisição será post e os dados enviados poderão ser uma string, mas por enquanto não temos nada.
+```html
+
+$.ajax({
+    url:"http//localhost:8080/api/autores",
+    contentType: 'application/json',
+    dataType:'json',
+    type:'post',
+    data:"{}",
+    success: function(resposta){
+      console.log("enviado com sucesso");
+    },
+    error: function(resposta){
+        console.log("erro");
+    }
+
+```
+Nós mapeamos a função de sucess que irá lidar com a resposta. Mais adiante, nosso formulário terá que lidar com problemas que poderão ocorrer no envio dos dados, como os de validação, por exemplo. Por isso, já adicionamos uma função que saiba trabalhar com o erro. Pedimos para aparecer no console, uma mensagem avisado se a requisição foi enviada com sucesso ou se ocorreu um erro.
+
+Vamos fazer um novo teste. Após clicarmos no botão "gravar", veremos a mensagem de erro no Console.
+
+Mensagem de Erro
+
+O servidor retornou um status com o número 400, que chama Bad Request. Isto indica que a nossa requisição teve dados inválidos.
+
+json com mensagens de invalidação
+
+O servidor retornou um JSON com todas as mensagens de validação em função das funções vazias que enviamos. Lembrando que nosso API já está pronta, o que precisamos alterar é a parte da aplicação Cliente.
+
+Em vez de concatenamos o JSON manualmente, existe a classe JSON (escrita em caixa alta no JavaScrit) e o método stringify(), que ao passarmos um objeto literal que será transformada em uma string. Iremos adicioná-los no data.
+```html
+
+$.ajax({
+    url:"http//localhost:8080/api/autores",
+    contentType: 'application/json',
+    dataType:'json',
+    type:'post',
+    data: JSON.stringify({nome:'',email:'',senha:''}),
+    success: function(resposta){
+      console.log("enviado com sucesso");
+    },
+    error: function(resposta){
+        console.log("erro");
+    }
+
+```
+Agora, precisamos pensar: de onde virá o "nome", o "email" e a "senha".
+
+Vou te deixar pensando no assunto e mais adiante vamos resolver esta questão!
+
+<h2>Manutenção do estado form e mais eventos</h2>
+Deixei você pensando como poderia pegar a informação do "nome", "email" e "senha" que queremos enviar no formulário.
+```html
+
+enviaForm(evento){
+   evento.preventDefault();    
+   $.ajax({
+     url:'http://localhost:8080/api/autores',
+     contentType:'application/json',
+     dataType:'json',
+     type:'post',
+     data: JSON.stringify({nome:'',email:'',senha:''}),
+     success: function(resposta){
+       console.log("enviado com sucesso");
+     }.bind(this),
+     error: function(resposta){
+       console.log("erro");
+     }      
+   });
+ }
+
+```
+Quando montamos a nosso listagem dinâmica, quando falamos ou pensamos em manter uma informação, manter um estado, usamos a variável state. Faremos o mesmo com o formulário, precisaremos manter o "nome", o "email" e a "senha". Se você estivesse no modelo normal de JavaScript acessando informações do formulário, nós faríamos referências. Mas no nosso caso, não manipulamos elementos diretamente, por isso usaremos o state. O responsável por manipular o elemento é o React.
+```html
+
+enviaForm(evento){
+   evento.preventDefault();    
+   $.ajax({
+     url:'http://localhost:8080/api/autores',
+     contentType:'application/json',
+     dataType:'json',
+     type:'post',
+     data: JSON.stringify({nome:this.state.nome,email:this.state.email,senha:this.state.senha}),
+     success: function(resposta){
+       console.log("enviado com sucesso");
+      }.bind(this),
+     error: function(resposta){
+       console.log("erro");
+     }      
+   });
+ }
+
+```
+Também vamos declarar que existem tais propriedades no state.
+
+```html
+
+ constructor() {
+    super();
+    this.state = {lista : [],nome:'',email:'',senha:''};
+ }
+
+```
+Agora, está claro quais são as informações mantidas dentro do nosso componente. No entanto, se testarmos no nosso navegador, veremos que aparecerá uma mensagem de erro no Console.
+
+erro
+
+O que está acontecendo é que o valor do this é nulo. Vamos imprimir no console para compreender o que está acontecendo.
+```html
+
+enviaForm(evento){
+  evento.preventDefault();
+  $.ajax({
+     url:'http://localhost:8080/api/autores',
+     contentType:'application/json',
+     dataType:'json',
+     type:'post',
+     data: JSON.stringify({nome:this.state.nome,email:this.state.email,senha:this.state.senha}),
+     success: function(resposta){
+       console.log("enviado com sucesso");
+    },
+     error: function(resposta){
+       console.log("erro");
+     }      
+   });
+ }
+
+```
+o this está nulo
+
+Por Default, as funções que você declara dentro da sua classe, não usaram o bound() e não estão associadas com o this do objeto. Infelizmente, isto não acontece automaticamente. Nós precisaremos informar qual this será utilizado dentro do enviaForm.
+
+Uma forma de fazer isso, seria ir até o main e no onSubmit invocaríamos a função bind.
+```html
+
+<div id="main">
+  <div className="header">
+    <h1>Cadastro de Autores</h1>
+  </div>
+  <div className="content" id="content">
+    <div className="pure-form pure-form-aligned">
+      <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm.bind(this)} method="post">
+        <Input id="nome" type="text" name="nome" value={} />                                              
+
+//...
+
+```
+Ele voltaria ao erro anterior de Bad Request.
+
+Desta forma, sempre que for feito o onSubmit, o bind será chamado. Vamos desfazer o que fizemos agora, e mostrar outra maneira de definir o this, mas desta vez será no constructor().
+```html
+
+constructor() {
+  super();
+  this.state = {lista : [],nome:'',email:'',senha:''};
+  this.enviaForm = this.enviaForm.bind(this);
+}
+
+
+```
+Esta é uma outro forma, se você não precisar que o this seja aplicado dinamicamente. Se testarmos, veremos que no console, veremos o mesmo erro esperado de Bad Request, porque não estamos enviando informações ainda.
+
+Como não precisamos de nada dinâmico em relação ao this, vamos utilizar esta maneira de indicá-lo e que foi recomendada na documentação.
+
+Agora, queremos começar a gravar as informações inseridas nos campos do formulário. Por enquanto, os dados escritos lá não aparecem no código. O value do input está vazio, também não estamos mantendo o estado do input em nenhum lugar.
+```html
+
+<div id="main">
+  <div className="header">
+    <h1>Cadastro de Autores</h1>
+  </div>
+  <div className="content" id="content">
+    <div className="pure-form pure-form-aligned">
+      <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm.bind(this)} method="post">
+      <label htmlFor="nome">Nome</label>
+        <input id="nome" type="text" name="nome" value={this.state.nome} />  
+    </div>
+    <div className="pure-control-group">
+      <label htmlFor="email">Email</label>
+      <input id="email" type="email" value={this.state.email} />           
+    </div>
+    <div className="pure-control-group">
+      <label htmlFor="senha">Senha</label>
+      <input id="email" type="password" name="senha" value={this.state.senha} />           
+    </div>                           
+
+//...
+
+```
+Observe que adicionamos o this.state.nome.
+
+Mas se tentarmos digitar algo nos campos do formulário, não aparecerá nada digitado ainda. Precisamos que ao digitarmos algo, seja alterado o estado do nome para o último valor inserido. Para isto, adicionaremos o evento onChange(). Lembrando que este se trata de um SyntheticEvent que será mapeado para o evento real. A linha do input ficará assim:
+
+<input id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome}/>
+Queremos que o onChange() chame o setNome sempre que alguém digitar algo nos campos do formulário. Vamos adicionar também o setEmail e o setSenha. Com as alterações, o trecho do código ficará assim:
+```html
+
+div id="main">
+  <div className="header">
+    <h1>Cadastro de Autores</h1>
+  </div>
+  <div className="content" id="content">
+    <div className="pure-form pure-form-aligned">
+      <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm.bind(this)} method="post">
+      <label htmlFor="nome">Nome</label>
+        <input id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome}/>  
+    </div>
+    <div className="pure-control-group">
+      <label htmlFor="email">Email</label>
+      <input id="email" type="email" value={this.state.email} onChange={this.setEmail} />           
+    </div>
+    <div className="pure-control-group">
+      <label htmlFor="senha">Senha</label>
+      <input id="email" type="password" name="senha" value={this.state.senha} onChange={this.setSenha} />           
+    </div>                           
+
+//...
+
+```
+Vamos adicionar as funções, abaixo do enviaForm. Quando o evento for recebido, queremos que o estado seja atualizado.
+```html
+
+setNome(evento){
+  this.setState({nome:evento.target.value});
+}
+
+setEmail(evento){
+  this.setState({email:evento.target.value});
+}
+
+setSenha(evento){
+  this.setState({senha:evento.target.value});
+}
+
+```
+Se testarmos digitar algo novamente no formulário, receberemos a mensagem de Cannot read property 'setState' of undefined. Isto acontece, porque novamente o this não foi definido. Teremos que adicioná-lo no constructor().
+```html
+
+constructor() {
+  super();
+  this.state = {lista : [],nome:'',email:'',senha:''};
+  this.enviaForm = this.enviaForm.bind(this);
+  this.setNome = this.setNome.bind(this);
+  this.setEmail = this.setEmail.bind(this);
+  this.setSenha = this.setSenha.bind(this);
+}
+
+```
+campos preenchidos
+
+
+O campo de "Email" está sinalizado com a cor vermelha, porque o que digitamos é inválido. Vamos testar com dados corretos para ver se o formulário funciona.
+
+campos preenchidos 2
+
+Após clicarmos em "Gravar" veremos a seguinte mensagem:
+
+gravado com sucesso
+
+No entanto, a nossa tabela não foi atualizada. Faremos isso mais adiante.
+
+Até aqui, nós trabalhamos com os eventos novos e com a manipulação de estado. Tivemos que lidar com o bind, porque as funções da classe não tinham o this definido. Mas tivemos a chance de compreender melhor os detalhes do React, ao adicionarmos os eventos do nosso formulário. Vimos como pegar informações dos inputs do React e a cada dado inserido, nós atualizaremos o estado do componente, e então, ele irá renderizar novamente o estado elemento.
+
+Mais adiante, veremos como atualizar a tabela quando os dados forem inseridos.
+
+
+
+<h2>Atualizando listagem em função do form</h2>
+
+Nós já estamos gravando novos autores no cadastro. No entanto, quando inserimos os dados no formulário, a tabela não é renderizada. É necessário dar um refresh na página, para que a tabela seja atualizada. Não é o que nós queremos.
+
+Então, vai pensando numa solução. Para dispararmos o update de um componente, o que é necessário alterar para o React compreender o que precisa ser feito? Vamos entender qual é a resposta da API.
+```html
+
+enviaForm(evento){
+  evento.preventDefault();
+  console.log(this);
+  $.ajax({
+     url:'http://localhost:8080/api/autores',
+     contentType:'application/json',
+     dataType:'json',
+     type:'post',
+     data: JSON.stringify({nome:this.state.nome,email:this.state.email,senha:this.state.senha}),
+     success: function(resposta){
+       console.log(resposta);
+       console.log("enviado com sucesso");
+       this.setState({lista:resposta});        
+     },
+     error: function(resposta){
+       console.log("erro");
+     }      
+   });
+ }
+
+```
+Vamos ver o que será retornado:
+
+teste com resposta
+
+Talvez, você já tenha chegado a conclusão de que se queremos que um componente seja renderizado novamente, basta que o state do componente seja modificado. É desta forma que disparamos a trigger de atualização de componente.
+```html
+
+//...
+success: function(resposta){
+  console.log(resposta);
+  console.log("enviado com sucesso");
+  this.setState({lista:resposta});        
+}
+
+```
+Dentro do success, nós informamos que a lista deve ser atualizada com a resposta. Vamos fazer um novo teste, gravando os dados do "Guilherme".
+
+Cadastro do Guilherme
+
+Mas recebemos uma mensagem de erro. Por quê? Porque esquecemos de chamar o bind e especificar que queremos trabalhar com o this do React.
+```html
+
+//...
+success: function(resposta){
+  console.log(resposta);
+  console.log("enviado com sucesso");
+  this.setState({lista:resposta});
+}.bind(this),
+error: function(resposta){
+  console.log("erro")
+}
+
+```
+Cadastro funcionou
+
+Nós conseguimos atualizar o estado.
+
+No nosso caso, simplesmente trocamos a propriedade da lista. Mas teríamos outra opção. Poderíamos acessar a lista e guardá-la em uma variável listaAtual.
+```html
+
+//...
+success: function(resposta){
+  var listaAtual = this.state.lista;
+  listaAtual.push();
+  this.setState({lista:resposta});
+}.bind(this),
+error: function(resposta){
+  console.log("erro")
+}
+
+```
+Nós poderíamos tentar pegar o último elemento da resposta. Ou poderíamos substituir a resposta com a lista atual.
+```html
+
+success: function(resposta){
+  var listaAtual = this.state.lista;
+  listaAtual.push();
+  this.setState({lista:listaAtual});
+}.bind(this),
+error: function(resposta){
+  console.log("erro")
+}
+
+```
+No entanto, com esta abordagem o código ficaria mais complexo. Nós não teríamos a opção de modificar o Back-End, porque ele retorna a nova listagem. Mesmo se ele retornasse apenas uma listagem, se três clientes estivessem acessando o cadastro, não conseguiremos ver os cadastros de todos ao mesmo tempo. Então, será mais simples recebermos a resposta completa e colocar a nova listagem na tabela.
+```html
+
+ success: function(resposta){
+   this.setState({lista:resposta});
+ }.bind(this),
+ error: function(resposta){
+   console.log("erro")
+ }
+
+```
+Nós conseguimos realizar o primeiro cadastro, inserimos e listamos dados. Mais adiante iremos tratar o problema da validação.
+
+Você pode estar se perguntando "mas todos os componentes estão no mesmo arquivo JavaScript?". Os inputs ficaram repetitivos também. Nós deixaremos a View grande e o código ficou um pouco difícil de entender.
+
+Será que nós precisamos de tanta repetição? Por que precisamos criar componentes? Responderemos estas perguntas mais adiante.
+
+
+
+
+<h2>Reutilização de componentes e parametrização</h2>
+Nós vimos anteriormente que temos algumas repetições no nosso código. Todo input possui uma label e uma div.
+
+```html
+
+div id="main">
+  <div className="header">
+    <h1>Cadastro de Autores</h1>
+  </div>
+  <div className="content" id="content">
+    <div className="pure-form pure-form-aligned">
+      <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm.bind(this)} method="post">
+      <label htmlFor="nome">Nome</label>
+        <input id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome}/>  
+    </div>
+    <div className="pure-control-group">
+      <label htmlFor="email">Email</label>
+      <input id="email" type="email" value={this.state.email} onChange={this.setEmail} />           
+    </div>
+    <div className="pure-control-group">
+      <label htmlFor="senha">Senha</label>
+      <input id="email" type="password" name="senha" value=this.state.senha} onChange={this.setSenha} />           
+    </div>                           
+//...
+
+```
+Nós gostaríamos de mudar um pouco a estrutura. Mas o irá acontecer quando tivermos vários formulários? Teremos que ir em cada um deles e modificá-los. Uma das vantagens de estarmos usando o React é que podemos criar componentes com responsabilidades mais específicas, para termos a chance de reaproveitá-los. No caso do form, poderíamos criar um componente que chamaremos de InputCustomizado
+```html
+
+  <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm.bind(this)} method="post">
+    <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome}/>
+//...
+
+```
+Nós adicionamos o id, o type e o value. Com o InputCustomizado poderíamos fazer tudo o que era feito pelo input anterior. Com o React podemos criar componentes que ainda não existem.
+
+Em seguida, criaremos uma nova pasta no src que chamaremos de componentes, dentro vamos gerar um arquivo chamado InputCustomizado.js. Nele, criaremos uma classe que terá o componente do React.
+
+```html
+
+import React, { Component } from `react`;
+class InputCustomizado extends Component{
+}
+
+<div className="pure-control-group">
+  <label htmlFor="nome">Nome</label>
+  <input id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome}/>
+</div>
+
+```
+Teremos que importar do módulo do React. Ele recebeu este nome, mas poderia ter sido nomeado de outra forma. Porém, o JSX exige que você chame o módulo de React, caso contrário teríamos problema na compilação. Por exemplo, se tivéssemos alterado o nome para MeuAlias e mudássemos o módulo importado também no arquivo App.js, quando tentássemos compilar a aplicação, receberíamos a seguinte mensagem:
+
+meu alias 1
+
+Ou seja, o JSX exige que você nomeie de React o objeto exportado pelo módulo do react.
+
+Esclarecido isso, vamos adicionar a função render().
+```html
+
+import React, { Component } from `react`;
+class InputCustomizado extends Component{
+
+    render() {
+        return(
+          <div className="pure-control-group">
+            <label htmlFor="nome">Nome</label>
+            <input id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome}/>
+          </div>
+      );
+    }
+}
+
+```
+Mas ainda não estamos usando o InputCustomizado e por isso vamos importá-lo no arquivo App.js.
+```html
+
+import React, { Component } from 'react';
+import './css/pure-min.css';
+import'./css/side-menu.css';
+import $ from 'jquery';
+import InputCustomizado from './componentes/InputCustomizado';
+
+```
+Ainda teremos problema na compilação.
+
+Unused vars
+
+Logo, iremos exportar o componente no InputCustomizado.js.
+```html
+
+import React, { Component } from `react`;
+export default class InputCustomizado extends Component{
+}
+
+```
+Agora, não teremos mais problemas. Como não tínhamos feito a exportação, o componente não estava sendo encontrado.
+
+O erro não era intuitivo, mas conseguimos resolvê-lo. Mas a aplicação não estará funcionando no navegador. Receberemos a mensagem de erro: Cannoit read property 'nome' of null.
+
+De volta ao InputCustomizado.js, onde nós definimos o estado com a propriedade nome (this.state.nome) e a função chamada setNome? Da maneira como construímos o código, precisaríamos ter um InputCustomizado para cada Input.
+
+No entanto, o nosso objetivo é reutilizar o InputCustomizado no App.js. Tanto para Nome, como para Email e Senha.
+```html
+
+<form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
+  <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome}/>                                              
+  <InputCustomizado id="email" type="email" name="email" value={this.state.email} onChange={this.setEmail}/>                                              
+  <InputCustomizado id="senha" type="password" name="senha" value={this.state.senha} onChange={this.setSenha}/>                                                  
+<div className="pure-control-group">                                  
+    <label></label>
+    <button type="submit" className="pure-button pure-button-primary">Gravar</button>                                    
+  </div>
+</form>
+
+```
+Quando criamos o componente no qual passaremos parâmetros, eles serão recebidos no componente por meio de um atributo que já vem herdado da classe Component chamado props. O atributo guardará todos os parâmetros que foram enviados para este componente.
+
+```html
+
+import React, { Component } from `react`;
+class InputCustomizado extends Component{
+
+    render() {
+        return(
+          <div className="pure-control-group">
+            <label htmlFor={this.props.id}>{this.props.label}</label>
+            <input id="nome" type="text" name="nome" value={this.props.id} onChange={this.setNome}/>
+          </div>
+      );
+    }
+}
+
+```
+O id usado se refere ao Id do componente. O htmlFor também será para o id que foi passado. Adicionamos a propriedade label que queremos disponibilizar. Todos os parâmetros passado para o seu componentes. A variável props guardará um JSON e as propriedades deste são definidas em função dos parâmetros passados para o componente. Por isso, faremos outras alterações no código.
+```html
+
+import React, { Component } from `react`;
+class InputCustomizado extends Component{
+
+    render() {
+        return(
+          <div className="pure-control-group">
+            <label htmlFor={this.props.id}>{this.props.label}</label>
+            <input id={this.props.id} type={this.props.type} name={this.props.nome} value={this.props.value} onChange={this.props.onChange}/>
+          </div>
+      );
+    }
+}
+
+```
+Agora, estamos buscando todas as informações que são passadas dinamicamente. Faltou apenas especificar a label de cada campo. Trata-se de um atributo do seu componente. Vamos adicionar o parâmetro label em cada InputCustomizado do App.js:
+```html
+
+<form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
+  <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome} label="Nome"/>                                              
+  <InputCustomizado id="email" type="email" name="email" value={this.state.email} onChange={this.setEmail} label="Email"/>                                              
+  <InputCustomizado id="senha" type="password" name="senha" value={this.state.senha} onChange={this.setSenha} label="Senha"/>                                                   <div className="pure-control-group">                                  
+    <label></label>
+    <button type="submit" className="pure-button pure-button-primary">Gravar</button>                                    
+  </div>
+</form>
+
+```
+Observe que label não é um atributo do HTML padrão, mas ele é um parâmetro do seu componente. Já veremos escrito "Nome" ao lado do campo específico.
+
+Cadastro com labels
+
+O Novo cadastro aparecerá na tabela dinâmica também.
+
+Nós reutilizamos componentes. Fica o desafio de também reutilizar o Submit, ficará como uma atividade nos exercícios.
+
+Agora, você pode colocar a mão na massa. Siga para os exercícios e faça o cadastro funcionar!
+
+
+<h2>Retulização de componentes</h2>
+Durante a construção do formulário, percebemos que repetíamos várias linhas de código com o Input. Por isso, isolamos certos trechos em um componente e depois, o reaproveitamos. Assinale a alternativa que indica a forma utilizada para deixá-los customizáveis.
+
+R: Os parâmetros passados são automaticamente associados a propriedades na variável props.
+
+Reutilizar componente é uma das grandes motivações do React. Aqui criamos um que foi reaproveitado dentro do nosso próprio projeto, mas nada nos impede de criar componentes que podem ser reutilizados entre os vários projetos de uma empresa, ou de várias! Para que possamos ter acesso aos parâmetros passados pelo código que utiliza o componente, usamos a variável props, que já é disponibilizada em toda classe que herda Component.
+
+<h2>Quando o cponente é renderizado novamente?</h2>
+Uma das características mais legais do React é a de renderizar novamente um componente, em função de uma alteração de estado. Assinale a alternativa que indica a forma correta de sinalizar para o React a necessidade da atualização do componente.
+
+R: Invocamos a função setState.
+Notificamos o React que uma verificação de atualização é necessária através da invocação da função setState. Nela passamos a propriedade que já existe na variável state e também passamos o novo valor que deve ser associado a ela.
+
+----------------------------------------------------
+<h1>Seção 05 - Isolando os componentes do Autor e melhorando a comunicação entre eles</h1>
+
+<h2>Refatorando o cadastro de autor</h2>
+
+Na última aula, nós "componentizamos" um pouco mais o nosso sistema. Nós isolamos o controle de Input do formulário, que poderá ser reaproveitado com outros semelhantes. Continuaremos trabalhando no código.
+
+Se analisarmos a classe App, veremos que ela faz diversas coisas. Ela é responsável por renderizar o layout completo do sistema. Nossa aplicação tem o cadastro dos autores, a tabela com as informações gravadas. E como acrescentaremos mais códigos para criar outras telas? Quando trabalhamos com o constructor vimos que muitas informações são mantidas nesta classe.
+```html
+
+constructor() {
+  super();
+  this.state = {lista : [],nome:'',email:'', senha:''};
+  this.enviaForm = this.enviaForm.bind(this);
+  this.setNome = this.setNome.bind(this);
+  this.setEmail = this.setEmail.bind(this);
+  this.setSenha = this.setSenha.bind(this);
+}
+
+```
+O componentDidMount não tem nada a ver com o formulário, mas se refere a tabela. Ou seja, são trabalhadas muitas informações que saem de diferentes lugares. Isto seria uma má prática de código.
+
+Em seguida, nós iremos refatorar o código, reorganizá-lo, e assim, dividir melhor as responsabilidades.
+
+Começaremos com a div de classContent precisamos de um componente que represente o FormularioAutor e TabelaAutores.
+```html
+
+<form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
+  <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome}/>                                              
+  <InputCustomizado id="email" type="email" name="email" value={this.state.email} onChange={this.setEmail}/>                                              
+  <InputCustomizado id="senha" type="password" name="senha" value={this.state.senha} onChange={this.setSenha}/>                                                   <div className="pure-control-group">                                  
+    <label></label>
+    <button type="submit" className="pure-button pure-button-primary">Gravar</button>                                    
+  </div>
+</form>
+
+```
+Temos uma div para o formulário e outra para a tabela.
+
+No arquivo App.js, vamos adicionar um novo import.
+```html
+
+import React, { Component } from 'react';
+import './css/pure-min.css';
+import'./css/side-menu.css';
+import $ from 'jquery';
+import InputCustomizado from './componentes/InputCustomizado';
+import {FormularioAutor,TabelaAutores} from './Autor';
+
+```
+Nós iremos importar duas novas classe adiante FormularioAutor e TabelaAutores do módulo Autor.
+
+Novamente, recomendamos que você não execute o código ainda. Aguarde o fim da explicação da aula.
+
+Em seguida, iremos criar o módulo Autor.js que ficará dentro da pasta src.
+
+No ECMAScript 6, nós podemos importar e exportar classes ou funções. O nosso arquivo JS, começaremos com a exportação da classe FormularioAutor, lembrando que ela será um componente do React.
+```html
+
+import React, { Component } from 'react';
+import $ from 'jquery';
+import InputCustomizado from './componentes/InputCustomizado';
+
+export class FormularioAutor extends Component{
+}
+export class TabelaAutores extends Component {
+}
+
+```
+Adicionamos o Component também. Já deixaremos importado o módulo principal React, porque vamos utilizar a marcação HTML na função render() e o JSX exige que ele receba este nome. Trouxemos para este arquivo também o jquery e o InputCustomizado.
+
+Você deve lembrar de que se temos um componente e queremos que ele retorne um HTML que será colocado na View, precisaremos utilizar a função render().
+```html
+
+export class FormularioAutor extends Component{
+    render()
+        return(
+        );
+}
+
+```
+E traremos para este arquivo a div e o construtor que se referem ao formulário. Nosso código ficará assim:
+```html
+
+export class FormularioAutor extends Component{
+
+  constructor() {
+    super();
+    this.state = {lista : [],nome:'',email:'', senha:''};
+    this.enviaForm = this.enviaForm.bind(this);
+    this.setNome = this.setNome.bind(this);
+    this.setEmail = this.setEmail.bind(this);
+    this.setSenha = this.setSenha.bind(this);
+  }
+    render() {
+      return (
+        <div className="pure-form pure-form-aligner">
+          <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
+            <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome} label="Nome"/>                                              
+            <InputCustomizado id="email" type="email" name="email" value={this.state.email} onChange={this.setEmail} label="Email"/>                                              
+            <InputCustomizado id="senha" type="password" name="senha" value={this.state.senha} onChange={this.setSenha} label="Senha"/>                                                   
+        <div className="pure-control-group">                                  
+              <label></label>
+              <button type="submit" className="pure-button pure-button-primary">Gravar</button>                                
+            </div>
+          </form>
+          </div>
+    //...
+
+```
+E tudo que pertence ao componente do formulário no arquivo App.js será apagado. O constructorficará assim:
+```html
+
+  constructor() {
+    super();
+    this.state = {lista : []};
+  }
+
+```
+O componentDidiMount() continuará aqui, mas do enviaForm() até o setSenha() será movido para o arquivo Autor.js, na classe FormularioAutor logo abaixo do constructor().
+
+Agora, temos uma classe específica para o formulário.
+
+Compilação sem problemas
+
+Na compilação, não teremos nenhum problema grave. Ele só nos avisa que não temos o cifrão ($) definido no App.js.
+
+Agora, vamos trabalhar com a TabelaAutores.
+```html
+
+export class TabelaAutores extends Component{
+    render() {
+        return(
+        );
+    }
+}
+
+```
+Depois, vamos pegar a div referente à tabela de autores no App.js, que está na div de content.
+```html
+
+export class TabelaAutores extends Component{
+    render() {
+        return(
+                <div>            
+                      <table className="pure-table">
+                        <thead>
+                          <tr>
+                            <th>Nome</th>
+                            <th>email</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {
+                            this.props.lista.map(function(autor){
+                              return (
+                                <tr key={autor.id}>
+                                  <td>{autor.nome}</td>
+                                  <td>{autor.email}</td>
+                                </tr>
+                              );
+                            })
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+      );
+    }
+}
+
+```
+Lembre-se que a tabela de autores precisa da variável lista guardada no estado.
+
+Agora, traremos do arquivo App.js, o constructor() e o componentDidMount(), que são relativos a TabelaAutores. Com as alterações, o trecho do arquivo Autor.js ficará assim:
+
+```html
+
+export class TabelaAutores extends Component{
+
+  constructor() {
+    super();
+    this.state = {lista : []};
+  }
+
+  componentDidMount(){  
+      $.ajax({
+          url:"http://localhost:8080/api/autores",
+          dataType: 'json',
+          success:function(resposta){    
+            this.setState({lista:resposta});
+          }.bind(this)
+        }
+      );
+
+```
+Agora, já não teremos nenhum problema de compilação.
+
+Se testarmos a aplicação no navegador, veremos que a tela está igual.
+
+Tela igual
+
+Em uma refatoração, não queremos adicionar novas funcionaldades no sistema. Nós apenas reorganizamos o código e ele deve continuar funcionando da mesma forma. Agora, o App.js só irá definir o layout padrão.
+```html
+
+<div id="layout">
+
+          <a href="#menu" id="menuLink" className="menu-link">
+
+              <span></span>
+          </a>
+
+          <div id="menu">
+              <div className="pure-menu">
+                  <a className="pure-menu-heading" href="#">Company</a>
+
+                  <ul className="pure-menu-list">
+                      <li className="pure-menu-item"><a href="#" className="pure-menu-link">Home</a></li>
+                      <li className="pure-menu-item"><a href="#" className="pure-menu-link">Autor</a></li>
+                      <li className="pure-menu-item"><a href="#" className="pure-menu-link">Livro</a></li>
+
+
+                  </ul>
+              </div>
+
+```
+A compreensão ficou mais simples.
+
+Antes de seguirmos, tentaremos cadastrar alguém no formulário.
+
+novo cadastro falhou
+
+Após clicarmos no botão "Gravar", as informações inseridas do "nico" deveriam aparecer no fim da nossa tabela, mas isso não aconteceu. No entanto, não foi apontado nenhum erro no console. Tente solucionar a questão: por que não deu erro?
+
+Mais adiante, iremos discutir o assunto.
+
+
+
+<h2>Higher-order components</h2>
+Eu deixei um desafio para você: entender o que estava acontecendo no código para que ao clicarmos no botão "Gravar", as informações inseridas no formulário não fossem adicionadas na tabela. Os dados foram gravados, mas lista não foi atualizada. Vamos entender o motivo.
+
+Quando estamos no componente de formulário no arquivo App.js,
+```html
+
+<div id="main">
+    <div className="header">
+      <h1>Cadastro de Autores</h1>
+    </div>
+    <div className="content" id="content">
+      <FormularioAutor/>
+      <TabelaAutores/>
+    </div>
+</div>
+
+```
+Observe que o FormularioAutor e TabelaAutores não possuem vínculos. Quando gravamos um autor, vamos até o callback de success, em Autor.js e chamamos o setState que irá alterar o estado do componente FormularioAutor.
+```html
+
+enviaForm(evento){
+  evento.preventDefault();
+  $.ajax({
+     url:'http://localhost:8080/api/autores',
+     contentType:'application/json',
+     dataType:'json',
+     type:'post',
+     data: JSON.stringify({nome:this.state.nome,email:this.state.email,senha:this.state.senha}),
+     success: function(resposta){
+       this.setState({lista:resposta});        
+     }.bind(this),
+     error: function(resposta){
+       console.log("erro");
+     }      
+   });
+ }
+
+```
+Dentro do setState temos um JSON com a variável lista e a resposta que é a nova listagem. Porém, anteriormente, tudo estava no App.js, a tabela tinha acesso à listagem, da mesma forma que o formulário de autores. Agora, quem tem a acesso à tabela é apenas o componente TabelaAutores. Este é um problema comum em aplicações que usam o React. Não será anormal ter um estado que seja necessário acessado de alguma forma pela tabela. E o mesmo estado deverá ser acessado por outro componente. Precisamos encontrar a maneira de que esse acesso seja possível!
+
+Primeiramente, precisaremos conectar os componentes FormularioAutor e TabelaAutores, faremos isso criando um novo componente chamado AutorBox. O nome Box é comumente usado em casos como este, em que um componente será responsável por unir outros mais.
+```html
+
+<div id="main">
+    <div className="header">
+      <h1>Cadastro de Autores</h1>
+    </div>
+    <div className="content" id="content">
+      <AutorBox/>
+    </div>
+</div>
+
+```
+Também vamos alterar as importações que são feitas.
+
+```html
+
+import React, { Component } from 'react';
+import './css/pure-min.css';
+import'./css/side-menu.css';
+import AutorBox from './Autor';
+
+```
+Nós teremos que trabalhar mais no isolamento. Como o arquivo App.js só precisará do acesso ao AutorBox, não iremos exportar nada. Vamos retirar o export da classe TabelaAutores no Autor.js.
+```html
+
+class TabelaAutores extends Component{
+
+}
+
+```
+Em seguida, adicionaremos no fim do arquivo a nova classe que exportaremos por default. Ela receberá o nome de AutorBox e será um componente, logo, recebrá o método render().
+```html
+
+
+export default class AutorBox extends Component{
+  render() {
+    return(
+      <FormularioAutor/>
+      <TabelaAutores/>
+    );
+  }
+}
+
+```
+Agora, o AutorBox conectará os dois. Mas teremos problemas na compilação.
+
+Erro compilação
+
+Isso aconteceu porque o nosso JSX não considerado válido. E ele deveria ter apenas um pai, nós agora temos dois. Teremos que envolver os dois componentes. Uma solução é mover a div de content. Outra solução possível, é colocar o FormularioAutor e o TabelaAutores dentro de uma div.
+```html
+
+export default class AutorBox extends Component{
+  render() {
+    return(
+      <div>
+        <FormularioAutor/>
+        <TabelaAutores/>
+      </div>
+    );
+  }
+}
+
+```
+A compilação será bem-sucedida. Os dois estão no mesmo lugar e a aplicação rodará no navegador. Agora, precisamos que a listagem seja acessível para as duas pontas. Por isso, a listagem não poderá pertencer apenas à tabela de autores, para que ela seja atualizada com o cadastro de um novo autor.
+
+Então, moveremos o constructor() e o componentDidMount() para o AutorBox.
+```html
+
+export default class AutorBox extends Component {
+
+  constructor() {
+    super();
+    this.state = {lista : []};
+  }
+
+  componentDidMount(){  
+      $.ajax({
+          url:"http://localhost:8080/api/autores",
+          dataType: 'json',
+          success:function(resposta){    
+            this.setState({lista:resposta});
+          }.bind(this)
+        }
+      );
+  }
+
+  render() {
+    return(
+      <div>
+        <FormularioAutor/>
+        <TabelaAutores/>
+      </div>
+    );
+  }
+}
+
+```
+Como não temos mais a variável que representa a lista, teremos algum problema.
+
+Erro com a lista
+
+Apareceu uma mensagem de erro no console.
+
+O estado da lista saiu da tabela. No entanto, precisamos que a tabela receba a lista como argumento. Nós já fizemos isto no InputCustomizado.js. Por isso, resolveremos o problema adicionando o this.state.lista.
+```html
+
+<div>
+  <FormularioAutor/>
+  <TabelaAutores lista={this.state.lista}/>
+</div>
+
+```
+Estamos declarando que a tabela de autores depende da variável lista que está no state do AutorBox.
+
+Precisaremos corrigir um detalhe na tabela de autores. Os argumentos que passamos para dentro de um componente ficam disponíveis na variável props, que possui um JSON criado dinamicamente. Vamos adicioná-la no tbody um pouco acima do AutorBox.
+```html
+
+<tbody>
+  {
+    this.props.lista.map(function(auto){
+      return (
+        <tr key={autor.id}>
+          <td>{autor.nome}</td>
+          <td>{autor.email}</td>
+        </tr>
+        );
+    })
+  }
+</tbody>
+
+```
+Agora, no navegador, a listagem já voltará a aparecer, porque já estamos passando os argumentos para a tabela de autores.
+
+Mas continuamos sem ter acesso a lista do formulário, apagamos a linha abaixo do succes, porque nao temos acesso à lista do formulário.
+```html
+
+enviaForm(evento){
+  evento.preventDefault();
+  console.log(this);
+  $.ajax({
+     url:'http://localhost:8080/api/autores',
+     contentType:'application/json',
+     dataType:'json',
+     type:'post',
+     data: JSON.stringify({nome:this.state.nome,email:this.state.email,senha:this.state.senha}),
+     success: function(resposta){
+     }.bind(this),
+     error: function(resposta){
+       console.log("erro");
+     }      
+   });
+ }
+
+```
+Como podemos resolver isso? A ideia é trabalharmos com desacoplamento no código. Apenas queremos que o formulário diga "eu preciso que você atualize a lista", sem precisar saber como será feito. Porque o nome da variável pode mudar. Por isso, passaremos o argumento para o FormularioAutor que chamaremos de callbackAtualizaListagem. O AutorBox passará como argumento a função atualizaListagem.
+```html
+
+render() {
+  return(
+    <div>
+      <FormularioAutor callbackAtualizaListagem={this.atualizaListagem}/>
+      <TabelaAutores lista={this.state.lista}/>
+    </div>
+  );
+}
+
+```
+Em seguida, criaremos a função atualizaListagem, que receberá como argumento a novaLista. Dentro adicionaremos o setState() e passaremos o lista que deverá ser a novaLista.
+```html
+
+atualizaListagem(novaLista) {
+  this.setState({lista:novaLista});
+}
+
+render() {
+  return(
+    <div>
+      <FormularioAutor callbackAtualizaListagem={this.atualizaListagem}/>
+      <TabelaAutores lista={this.state.lista}/>
+    </div>
+  );
+}
+
+```
+Por enquanto, a compilação será feito corretamente.
+
+compilação correta 2
+
+O this ainda não está definido no atualizaListagem. Faremos isto agora, no constructor().
+```html
+
+constructor() {
+  super();
+  this.state = {lista : []};
+  this.atualizaListagem = this.atualizaListagem.bind(this);
+}
+
+```
+Informamos que o atualizaListagem usará o this do React.
+
+Até aqui, o trecho do nosso código está assim:
+```html
+
+export default class AutorBox extends Component {
+
+  constructor() {
+    super();
+    this.state = {lista : []};
+    this.atualizaListagem = this.atualizaListagem.bind(this);
+  }
+
+  componentDidMount(){  
+      $.ajax({
+          url:"http://localhost:8080/api/autores",
+          dataType: 'json',
+          success:function(resposta){    
+            this.setState({lista:resposta});
+          }.bind(this)
+        }
+      );
+  }
+
+  atualizaListagem(novaLista) {
+    this.setState({lista:novaLista});
+  }
+
+  render() {
+    return(
+      <div>
+        <FormularioAutor callbackAtualizaListagem={this.atualizaListagem}/>
+        <TabelaAutores lista={this.state.lista}/>
+      </div>
+    );
+  }
+//...
+
+```
+Agora, voltaremos ao enviaForm do FormularioAutor e vamos incluir a seguinte linha dentro do success:
+```html
+
+this.props.callbackAtualizaListagem(resposta);
+
+```
+O success ficará assim:
+```html
+
+success: function(resposta){
+  this.props.callbackAtualizaListagem(resposta);
+}.bind(this),
+erro:function(resposta){
+  console.log("erro");
+}
+
+```
+Em seguida, faremos um novo teste e cadastraremos os dados do "alemão". Após inserirmos as informações nos campos e clicarmos em "Gravar", o novo cadastro será adicionado na tabela.
+
+cadastro alemão
+
+Vamos analisar o que foi feito a partir do FormularioAutor. Ele recebeu como argumento o callbackAtualizaListagem responsável por atualizar a listagem - e que não sabe o nome da função. Mas ele tem a assinatura da função, a resposta.
+
+Se trocarmos o nome da função de atualizaListagem, o formulário não sofrerá nenhuma alteração.
+
+Para continuar com o tema de boa práticas do React, vimos os casos que chamamos de Higher-order Components. São os componentes responsáveis por encapsular um estado que será trabalhado por vários outros componentes e que comumente nomeamos utilizando o sufixo Box. Depois, de criá-lo, podemos passá-lo como argumento. Pode passar como argumento a função que atualizará o estado.
+
+Vamos deixar para você um outro desafio: para resolver o problema de acoplamento, geramos o FormularioAutor que recebeu como argumento o callbackAtualizaListagem. Desta forma diminuímos o acoplamento, mas ainda realizamos um menor que é passado para o formulário do autor. Se por causa dele, tivéssemos que atualizar outros itens, poderíamos usar um callback que faria várias coisas ou passaríamos vários callbacks que seriam chamados pelo formulário. Com a tela mais complexa, o gerenciamento de comunicação entre os componentes começará a ficar mais difícil.
+
+Mais adiante, trabalharemos mais o desacoplamento do código. Imagine que em função do FormularioAutor, teríamos que alterar outros componentes. Resolveremos a questão a seguir.
+
+
+
+
+<h2>Publish subscriber desacoplamento</h2>
+
+Nós conseguimos resolver a parte de comunicação entre os componentes de uma maneira padrão no mercado que o React usa, ao criarmos o Higher-order component (também conhecido como wrapper, ou o "envelopador" traduzido para o português). Foi o que fizemos ao criar o FormularioAutor. Nós adicionamos um parâmetro que indica quem ele deve chamar em função de novos autores.
+
+Então, ele deveria passar quem ele quer passar com parâmetro para novos autores. Mas vamos pensar um pouco além... Nos casos em que trabalhamos com um componente que não tem a ver com o AutorBox, por exemplo, no menu temos a opção "Autor".
+
+Autor
+
+E se tivéssemos que saber quantos autores estão cadastrados? Como poderíamos fazer para em função do cadastro, atualizar o número? Pode ser que a nossa tela fique cada vez mais complexa. Em situações assim, apenas o wrapper não será o suficiente. Como comentamos anteriormente, precisaremos encontrar uma forma de deixar mais desacoplada a comunicação entre os componentes.
+
+Começaremos fazendo alterações no FormularioAutor saiba quem ele precisa chamar quando for cadastrado um novo autor. Nosso código atualmente está assim no Autor.js:
+```html
+
+atualizaListagem(novaLista) {
+  this.setState({lista:novaLista});
+}
+
+render() {
+  return(
+    <div>
+      <FormularioAutor callbackAtualizaListagem={this.atualizaListagem}/>
+      <TabelaAutores lista={this.state.lista}/>
+    </div>
+  );
+}
+
+```
+Com as alterações, a div ficará assim:
+```html
+
+<div>
+  <FormularioAutor/>
+</div>
+
+```
+Vamos alterar também o sucess do enviaForm. Atualmente ele está assim:
+```html
+
+enviaForm(evento){
+  evento.preventDefault();
+  console.log(this);
+  $.ajax({
+     url:'http://localhost:8080/api/autores',
+     contentType:'application/json',
+     dataType:'json',
+     type:'post',
+     data: JSON.stringify({nome:this.state.nome,email:this.state.email,senha:this.state.senha}),
+     success: function(resposta){
+       this.props.callbackAtualizaListagem(resposta):
+     }.bind(this),
+     error: function(resposta){
+       console.log("erro");
+     }      
+   });
+ }
+
+```
+Em vez de referenciarmos apenas um callback, o que queremos fazer é "disparar um aviso geral de novaListagem disponivel".
+
+Após as alterações, o sucess ficará assim:
+```html
+
+success: function(resposta){
+  //disparar um aviso geral de novaListagem disponivel
+}.bind(this),
+erro:function(resposta){
+  console.log("erro");
+}
+
+```
+Como foi dito no comentário adicionado, queremos que ele avise que aconteceu alguma coisa para os componentes que forem "interessados". Na programação, chamamos de publisher, quem publica o aviso, e de subscriber quem se inscreve para recebe-lo. Para fazer isto, usaremos uma biblioteca que funciona tanto para JavaScript Client-side quanto para Server-side: o PubSubJS.
+
+PubSubJS
+
+Já instalei na máquina para não perdermos muito tempo. A instalação será feita via NPM, o gerenciador de pacote do NodeJS.
+
+Alura-Azul:cdc-admin alura$ npm install pubsub-js
+Nós usaremos uma dependência que rodará no Cliente-Side e nós instalaremos como se fosse uma dependência do Node, e o ferramental resolverá o tema. Instalei o PubSubJS, ele já está disponível.
+
+Em seguida, vamos importá-lo no Autor.js.
+```html
+
+import React, { Component } from 'react';
+import $ from 'jquery';
+import InputCustomizado from './componentes/InputCustomizado';
+import PubSub from 'pubsub-js';
+
+```
+Agora, ele colocará o objeto exportado no PubSub.
+
+Vamos substituir o comentário anterior do success. No momento em que cadastrarmos um novo autor, o PubSub terá um método que se chama publish().
+```html
+
+success: function(resposta){
+  PubSub.publish(novaListagem);
+} bind(this),
+erro:function(resposta){
+  console.log("erro");
+}
+
+```
+Queremos avisar que existe uma nova listagem disponível.
+
+Mas vamos imaginar a seguinte situação, imagine que temos vários componentes na nossa aplicação que estão interessados em ouvir diversas mensagens, sobre diferentes assuntos. Pode ser sobre a nova listagem ou que um item foi removido. Além de publicarmos o objeto novo que está disponível para as pessoas manipularem, precisamos indicar qual é o canal, que costumamos chamar de tópico. Trata-se de um lugar que iremos disponibilizar a informação. O nosso, chamaremos de atualiza-lista-autores.
+```html
+
+sucess: function(resposta){
+  PubSub.publish('atualiza-lista-autores',novaListagem);
+}bind(this),
+erro:function(resposta){
+  console.log("erro");
+}
+
+```
+Ao cadastrarmos um novo autor, publicaremos no tópico que será ouvido por componentes interessados. Se alguém ficará interessado em ouvir, é um outro assunto... Logo após montarmos o componente do AutorBox, vamos adicionar o PubSub e vamos nos inscrever ao tópico atualiza-lista-autores. Quando chegar um objeto novo, precisaremos associar a uma função que será executada. Receberemos como argumento o canal que estamos escutando. Necessariamente, o primeiro argumento será o topico e o segundo, será o objeto que foi passado.
+```html
+
+PubSub.subscribe('atualiza-lista-autores', function(topico,novaLista){
+});
+
+```
+Após a função ser chamada com a nova listagem, iremos adicionar o this.setState():
+```html
+
+PubSub.subscribe('atualiza-lista-autores', function(topico,novaLista){
+  this.setState({lista:novaLista});
+});
+
+```
+
+A lista já terá a novaLista. Por isso, não precisaremos mais da função atualizaListagem. O trecho a partir do componentDidMount ficou assim:
+```html
+
+componentDidMount(){  
+    $.ajax({
+        url:"http://localhost:8080/api/autores",
+        dataType: 'json',
+        success:function(resposta){    
+          this.setState({lista:resposta});
+        }.bind(this)
+      }
+    );
+
+    PubSub.subscribe('atualiza-lista-autores', function(topico,novaLista){
+      this.setState({lista:novaLista});
+    });
+}
+
+render() {
+  return(
+    <div>
+      <FormularioAutor/>
+      <TabelaAutores lista={this.state.lista}/>
+    </div>
+  );
+}
+}
+
+```
+No momento de tentarmos compilar, receberemos a mensagem de que o arquivo Autor.js tem um bind desnecessário. Vamos conferir o enviaForm e ver o que aconteceu:
+
+```html
+
+enviaForm(evento){
+  evento.preventDefault();
+  $.ajax({
+     url:'http://localhost:8080/api/autores',
+     contentType:'application/json',
+     dataType:'json',
+     type:'post',
+     data: JSON.stringify({nome:this.state.nome,email:this.state.email,senha:this.state.senha}),
+     success: function(novaListagem){
+        PubSub.publish('atualiza-lista-autores',novaListagem);
+     }.bind(this),
+     error: function(resposta){
+       console.log("erro");
+     }      
+   });
+ }
+
+```
+Como não queremos mais acessar nada do React, o bind() de fato não precisará mais ser chamado. Ao removermos a linha, nosso código ficará mais simples:
+```html
+
+enviaForm(evento){
+  evento.preventDefault();
+  $.ajax({
+     url:'http://localhost:8080/api/autores',
+     contentType:'application/json',
+     dataType:'json',
+     type:'post',
+     data: JSON.stringify({nome:this.state.nome,email:this.state.email,senha:this.state.senha}),
+     success: function(novaListagem){
+        PubSub.publish('atualiza-lista-autores',novaListagem);
+     },
+     error: function(resposta){
+       console.log("erro");
+     }      
+   });
+ }
+
+```
+Em seguida, faremos um novo teste para ver se nossa aplicação rodará no navegador.
+
+Novo Cadastro2
+
+Preenchemos os campos com os dados do Guilherme, mas ao clicarmos no botão gravar, a tabela não foi atualizada com as novas informações. Eu confesso, que dessa vez, eu não sei o que aconteceu...
+
+Analisaremos novamente o Autor.js. No PubSub.subscribe(), nós estamos utilizando o this, porém, ele não foi definido. O this foi utilizado na função de callback do PubSub. Precisamos especificar que a função será executada com o this do React.
+
+Novos cadastros 3
+
+Com a alteração do bind(), resolvemos o problema.
+
+Eu gosto dessa forma de fazer o vínculo entre os componentes, que ficaram mais desacoplados. Podemos adicionar outro componente na tela, que não tenha nada a ver com o AutorBox e ele também será notificado. No mercado, será comum encontrarmos a primeira maneira como foi mostrada, mas a segunda forma apresentada é a que eu recomendo. Você tem dois caminhos para seguir.
+
+Agora, que temos os componentes desacoplados, vamos lidar com a validação.
+
+Até mais!
+
+<h2>Validação Parte 1</h2>
+
+Nós trabalhamos ainda mais na parte de desacoplar os componentes e agora, o FormularioAutor simplesmente pública que tem um formulário cadastrado e quem estiver interessado em receber o aviso, irá ser inscrever neste canal. No nosso caso, o AutorBox se inscreveu para ser notificado quando novos autores forem cadastrados.
+
+Atenção: Nós criamos o AutorBox para fazer com que a listagem e formulário compartilhassem informações, por meio das funções e dos estado mantidos no AutorBox. Quando partimos para a comunicação PubSub, não precisamos necessariamente ter o Box, considerando que o trecho referente ao mesmo poderia voltar para a listagem e esta poderia se inscrever para receber novas atualizações.
+
+Entretanto, a comunidade de desenvolvedores que utiliza o React, gostam do uso do Higher-order Component porque o estado ficará separado no box, e você terá componentes que trabalharam mais com a visualização. O FormularioAutor que está lidando com o estado internamente, poderíamos passá-lo para o FormularioAutor, tornando-o uma propridade do mesmo. E o estado ficaria no Box. Esta seria uma possibilidade.
+
+Você tem disponível disversas soluções e deve fazer as escolhas de acordo com o seu projeto. Minha sugestões é que você mantenha as propriedade que serão compartilhadas se tornarão estados do Box, informações que são específicas que não serão compartilhadas, serão mantidas no seu componente. Você tem está opção também.
+
+Mas faltou algo no nosso projeto... Quando formos tentar cadastrar uma informação inválida, o Back-end retornará um status 400, de Bad Request.
+
+Bad Request
+
+A mensagem nos dará mais detalhes sobre o problema, com um JSON que nos informará a quantidade de erros. No caso, ele irá nos informar problemas como o campo de senha estar vazio. Todas as informações que apareceram, precisam que sejam visualizadas no formulário, ao lado de cada campo correspondente. Faremos isto agora.
+
+Até aqui, estamos lidando com o erro de uma forma genérica.
+```html
+
+enviaForm(evento){
+  evento.preventDefault();
+  $.ajax({
+     url:'http://localhost:8080/api/autores',
+     contentType:'application/json',
+     dataType:'json',
+     type:'post',
+     data: JSON.stringify({nome:this.state.nome,email:this.state.email,senha:this.state.senha}),
+     success: function(novaListagem){
+        PubSub.publish('atualiza-lista-autores',novaListagem);
+     },
+     error: function(resposta){
+       console.log("erro");
+     }      
+   });
+ }
+
+```
+Em casos de erro, receberemos um aviso no console. É claro que isto não é o suficiente. Começaremos investigando se o erro foi de validação. Adicionaremos um if para isso. Caso seja um problema de validação, usaremos a variável resposta que o jQuery nos envia. Ela também possui uma propriedade que se chama status.
+```html
+
+error: function(resposta){
+  if(resposta.status === 400)
+}
+
+```
+Se o status for igual a 400, significa que deu erro na validação e queremos que sejam realizadas duas ações: recuperar quais foram os erros e exibir a mensagem de erro no campo. Nós poderíamos adicionar isto no if, mas estaríamos misturando as responsabilidades. Nós teremos que lidar com erro em diversos formulários. Uma melhor solução é criar uma classe chamada TratadorErros().
+```html
+
+error: function(resposta){
+  if(resposta.status === 400){
+    new TratadorErros().publicaErros(resposta.responseJSON);
+  }
+}
+
+```
+O publicaErrosserá responsável por pegar o JSON e por devolvê-lo como objeto JSON. Em seguida, teremos que importar a classe TratadorErros().
+```html
+
+import React, { Component } from 'react';
+import $ from 'jquery';
+import InputCustomizado from './componentes/InputCustomizado';
+import PubSub from 'pubsub-js';
+import TratadorErros from './TratadorErros';
+
+```
+Depois, criaremos o módulo TratadorErros.js na pasta src.
+
+Termine a explicação, antes de começar a implementar o código.
+
+Nós vamos exportá-la como default:
+```html
+
+export default class TratadorErros {
+  publicaErros(erros){
+    console.log(erros);
+  }
+}
+
+```
+Nós já adicionamos o método publicaErros(). Vamos dar um console.log() para acompanhar o passo a passo.
+
+Se fizermos um novo cadastro com dados inválidos, ele irá retornar um objeto literal.
+
+Objeto literal
+
+Mas ainda não será o suficiente. Precisaremos pegar o objeto literal e tratá-lo. Dentro do JSON no console, existe uma propriedade chamada errors. Logo, nós iremos navegar por cada um dos erros para poder posicioná-lo ao lado de cada um dos campos.
+
+Agora, vamos adicionar um for que começa do índice (i) de valor 0 e vai até o erros.erros. Observe que estamos utilizando a propriedade errors que é retornada pelo Back-End.
+```html
+
+export default class TratadorErros {
+  publicaErros(erros){
+      for(var i=0;i<erros.errors.length;i++){
+          var erro = erros.errors[i];
+          console.log(erro);
+      }
+  }
+}
+
+```
+Queremos que cada erro que seja detectado, seja mostrado no console:
+
+Erros 
+
+Podemos ver cada um dos erros especificados. Temos a mensagem e o nome do campo.
+
+Agora, no arquivo InputCustomizado.js, temos um input e adicionaremos um span. Também queremos que seja exibida uma informação. Se vamos falar de uma informação sobre o componente que varia de um momento para outro, falaremos sobre estado do componente. Ela irá ter uma msgErro.
+```html
+
+render() {
+    return(
+      <div className="pure-control-group">
+        <label htmlFor={this.props.id}>{this.props.label}</label>
+        <input id={this.props.id} type={this.props.type} name={this.props.nome} value={this.props.value} onChange={this.props.onChange}/>
+        <span className="erro">{this.state.msgErro}</span>
+      </div>
+  );
+}
+
+```
+E acima do render() adicionaremos um constructor().
+```html
+
+constructor(){
+    super();
+      this.state = {msgErro:''};
+}
+
+```
+Chamamos o this.state, com a msgErro que começará vazia.
+
+Nós acabamos de declarar como queremos que o componente se comporte, sem ter que declarar o span manualmente.
+
+Após o render, podemos testar a aplicação no navegador. Se fizermos um Inspect, já veremos o span do campo "Nome".
+
+Nós precisamos que em caso de erro, o componente seja notificado a respeito. Anteriormente, fizemos componentes se comunicarem com o PubSub.
+
+De volta ao TratadorErros.js, queremos que ao encontrarmos um erro, ele seja publicado. Queremos que ele seja publicado no canal de erro-validação do formulário. Apesar do TratadorErrosnão ser um componente, ele poderá fazer uso do PubSub.
+
+```html
+
+import PubSub from 'pubsub-js';
+
+export default class TratadorErros {
+  publicaErros(erros){
+      for(var i=0;i<erros.errors.length;i++){
+          var erro = erros.errors[i];
+          PubSub.publish("erro-validacao",erro);
+      }
+  }
+}
+
+```
+Publicamos! Agora, alguém precisará ouvir. Vamos incluir o componentDidMountno InputCustomizado. Esta será a função chamada pelo React, assim que o componente for ser exibido na tela. Nesta caso especifico, poderíamos utilizar também o ComponentWillMount(), porque não queremos manipular o estado do componente com algo que seja via Ajax. Fica a seu critério, qual utilizar. No nosso caso, nós usaremos o componentDidMount().
+
+Vamos importar o PubSub.
+```html
+
+import React, { Component } from React;
+import PubSub from 'pubsub-js';
+
+```
+Em seguida, iremos nos inscrever no evento de publicação de erro.
+```html
+
+componentDidMount() {
+    PubSub.subscribe("erro-validacao",function(topico,erro)){
+
+    });
+}
+
+```
+Adicionamos a função que receberá o nome do topico e o objeto erro.
+
+Quem já cursou o curso Avançado de JavaScript sabe que poderíamos utilizar as Arrow Functions, chamadas de lambdas. Porém, neste caso, não existe muita vantagem em usá-las. Optaremos por usar a sintaxe que já é suportada em todas as versões do JavaScript.
+
+Então, quando chegar o erro, iremos chamar o bind() para linkarmos o this do React.
+```html
+
+componentDidMount() {
+  PubSub.subscribe("erro-validacao",function(topico,erro){
+      this.setState({msgErro:erro.defaultMessage});
+  }.bind(this));    
+  };
+
+```
+Definimos a propriedade de JSON, msgErro.
+
+No navegador, ele veremos que alguma não está funcionando tão bem.
+
+may not be empty
+
+Apareceram três mensagens, mas apenas um campo está inválido. Tente responder por que a mensagem está sendo exibida nos três campos.
+
+<h2>Validação Parte 2</h2>
+
+Eu deixei você pensando na razão de termos problemas com a validação ao preenchermos os campos de dados e clicarmos em "Gravar". Após salvarmos as dados, surgia a mensagem "may not be empty" ao lado de todos os campos.
+
+5.4 may not be empty
+
+Vamos resolver a questão, agora. No arquivo Autor.js, o método render() utiliza três vezes o InputCustomizado.
+```html
+
+render() {
+  return (
+    <div className="pure-form pure-form-aligner">
+      <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
+        <InputCustomizado id="nome" type="text" name="nome" value={this.state.name} onChange={this.setName} label="Nome"/>                                              
+        <InputCustomizado id="email" type="email" name="email" value={this.state.email} onChange={this.setEmail} label="Email"/>                                              
+        <InputCustomizado id="senha" type="password" name="senha" value={this.state.senha} onChange={this.setSenha} label="Senha"/>         
+        <div className="pure-control-group">                                 <label></label>
+          <button type="submit" className="pure-button pure-button-primary">Gravar</button>                        
+        </div>
+      </form>
+    </div>
+
+```
+Por debaixo do pano, o React achará a classe do componente que foi importado, instanciará o objeto da classe e chamará o componentDidMount() três vezes. Depois, cada um dos objetos irá se inscrever no canal erro-validacao e foi neste momento em que ocorreu o problema. Quando o TratadorErros publica os erros no erro-validacao. Eles ficaram registrados no canal, os três recebem a mensagem e redefinem o estado que dispara uma atualização do componente. Vamos alterar o componenteDidMount().
+```html
+
+componentDidMount() {
+  PubSub.subscribe("erro-validacao",function(topico,erro)){
+      if(erro.field === this.props.name){
+          this.setState({msgErro:erro.defaultMessage});
+      }
+  }.bind(this));    
+}
+
+```
+Nosso Back-End tem uma propriedade que chama field que contém o nome do campo da validação, que se for o mesmo do nome do input em questão (acessado por meio do props), então, queremos atualizar o estado do objeto.
+
+mensagem de erro correta
+
+Agora, quando tentarmos gravar as informações e um campo ficar vazio, será visualizada apenas um mensagem de erro.
+
+Se preenchermos todos os campos, a tabela com as informações serão atualizadas. Mas as informações continuarão preenchidas no formulário e nós queremos que elas desapareçam. Isto está acontecendo porque o formulário está mantendo o estado.
+
+No arquivo Autor.js, vamos adicionar o setState() no enviaForm. Desta forma, quando for realizado o novo cadastro, será alterado o estado do formulário.
+```html
+
+enviaForm(evento){
+  evento.preventDefault();
+  $.ajax({
+    url:'http://localhost:8080/api/autores',
+    contentType:'application/json',
+    dataType:'json',
+    type:'post',
+     data: JSON.stringify({nome:this.state.nome,email:this.state.email,senha:this.state.senha:''});
+     success: function(novaListagem){
+           PubSub.publish('atualiza-lista-autores',novaListagem);        
+           this.setState({nome:'',email:'',senha:''});
+         }.bind(this),
+         error: function(resposta){
+           if(resposta.status === 400) {
+             new TratadorErros().publicaErros(resposta.responseJSON);
+           }
+         },
+  //...
+
+```
+Dentro do setState() passamos as propriedades que queremos que recebam as alterações. E o this está linkado com o this do React.
+
+Agora, ao realizarmos um novo cadastrado, após as informações serem gravadas e os campos dos dados ficarão vazios.
+
+Mas precisaremos resolver uma última questão.
+
+Problema com o may not be empty
+
+Ao tentarmos gravar o formulário e um dos campos estiver vazio, a mensagem de erro não desaparecerá quando preenchermos o espaço vazio. O ideal é que quando todos os campos estejam preenchidos, a mensagem não seja mais visualizada. Precisamos encontrar uma forma de limpar as mensagens sempre que clicarmos em "Gravar".
+
+No jQuery, quando formos fazer o Ajax, podemos usar uma propriedade no JSON da função que se chama beforeSend. Antes de enviar, queremos limpar as mensagens dos componentes. Por padrão, precisaremos adicionar o PubSub e queremos publicar no canal limpa-erros.
+
+```html
+
+beforeSend: function(){
+      PubSub.publish("limpa-erros",{});
+    }
+
+```
+Em seguida, iremos para aba do InputCustomizado, e além do erro-validacao, vamos nos inscrever no limpa-erros.
+```html
+
+PubSub.subscribe("limpa-erros",function(topico){
+    this.setState({msgErro:''});
+}.bind(this));
+
+```
+A mensagem de erro ficará vazia. O componentDidMount ficará assim:
+```html
+
+componentDidMount() {
+     PubSub.subscribe("erro-validacao",function(topico,erro){            
+         if(erro.field === this.props.name){
+             this.setState({msgErro:erro.defaultMessage});            
+         }
+     }.bind(this));
+
+     PubSub.subscribe("limpa-erros",function(topico){                        
+         this.setState({msgErro:''});                        
+     }.bind(this));        
+ }
+}
+
+```
+Não adicionaremos um if, porque não nos interessa de qual componente específico estamos limpando a mensagem de erro. Nós enviamos o limpa-erros e quem estiver registrado com ele, ficará limpo das mensagens.
+
+Agora, quando fizermos um novo cadastro no formulário, após os dados serem gravados, os campos ficarão vazios e não visualizaremos mais as mensagens de erro.
+
+Nós podemos brincar de alterar o estado dos componentes com o React. Não é mais necessário concatenar informações, buscar o span e depois, definir a mensagem que aparecerá com os campos vazios. Quem terá o trabalho será o React. Nós só trabalharemos em cima do estado.
+
+Acabamos a parte de refatoração, agora, siga para os exercícios. Caso tudo tenha dado certo, tente se aprofundar mais no conteúdo.
+
+A seguir, aprenderemos ainda mais!
+
