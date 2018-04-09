@@ -169,12 +169,18 @@ import './index.css'
 Nós veremos um pouco sobre o assunto, mas você encontrará mais sobre o assunto nos curso de JavaScript Avançado da Alura. Observe que encontraremos a informação de que o arquivo index.css foi importado. O responsável por disponibilizar isso é o Webpack.
 
 Temos também um trecho com código do React:
+<br/>
+
 ```html
+
 ReactDOM.render(
   <App />
   document.getElementById('root')
+
 );
 ```
+<br/>
+
 Nós veremos isso detalhadamente mais adiante. Outro ponto que iremos ver é o uso do JSX, um JavaScript que tem suporte a XML declarado dentro do código.
 
 Então, esta é a estrutura que trabalharemos. O Hello World já está funcionando, entenderemos mais adiante o que foi feito e depois, iremos deixá-lo com a cara da nossa aplicação.
@@ -185,6 +191,8 @@ Já subimos a nossa aplicação, configurou o ambiente, falamos do Node.js e do 
 Com o comando npm start vamos subir a aplicação. Ao usarmos o create-react-app, ele trouxe um servidor simples que subiu o nosso HTML rapidamente. Desta forma, tornou-se possível acessá-lo usando uma porta.
 
 Outro ponto é que quando rodamos o npm start, ele executara um comando. Quando criamos um projeto que rodará dentro do Node e usa o npm, automaticamente, será gerado um arquivo chamado package.json que terá as explicações do seu projeto.
+<br/>
+
 ```html
 
 {
@@ -210,6 +218,8 @@ Outro ponto é que quando rodamos o npm start, ele executara um comando. Quando 
 }
 
 ```
+
+<br/>
 Temos o nome do projeto, a versão, as dependências que declaramos do projeto. Iremos analisar uma propriedade do arquivo chamada scripts e dentro, uma que chama start. Quando executarmos npm start no Terminal, ele deve executar o comando react-scripts start.
 
 O create-react-app criou a pasta node_modules e podemos ver que uma grande quantidade de itens foi configurado.
@@ -217,6 +227,8 @@ O create-react-app criou a pasta node_modules e podemos ver que uma grande quant
 Node_module
 
 Dentro da pasta da pasta react-script, encontraremos a bin, que quando selecionada, veremos react-scripts.js. O arquivo executará os comandos necessários para o create-react-app, podemos ver que ele chamará o node.
+<br/>
+
 ```html
 
 var result = spawn.sync(
@@ -227,7 +239,10 @@ var result = spawn.sync(
 
 ```
 
+<br/>
 Outro ponto que você deve observar está no arquivo index.js.
+<br/>
+
 ```html
 
 ReactDOM.render(
@@ -236,6 +251,8 @@ ReactDOM.render(
 );
 
 ```
+
+<br/>
 A linha <App /> é uma marcação XML, que se fosse simplesmente declarado no código JS não seria válido.
 
 Com o React, nós escrevemos uma linguagem escrita sobre JS. Nós utilizamos a linguagem JSX que nos permite usar marcações XML.
@@ -243,6 +260,8 @@ Com o React, nós escrevemos uma linguagem escrita sobre JS. Nós utilizamos a l
 JSX github
 
 Porém, o seguinte trecho do App.jstambém não seria válido dentro de um componente do React.
+<br/>
+
 ```html
 
   <div className="App">
@@ -256,6 +275,7 @@ Porém, o seguinte trecho do App.jstambém não seria válido dentro de um compo
   </div>
 
 ```
+<br/>
 Precisamos conseguir transformar este código não válido, para outro em JS que seja aceito.
 
 Babel j
@@ -269,6 +289,8 @@ Aula 1_Babel entrada e saida
 Seria desanimador ter que escrever este código.
 
 O Babel também nos ajudará a escrever classes, usando herança, graças aos imports da versão mais nova do JS.
+<br/>
+
 ```html
 
 import React, { Component } from 'react';
@@ -294,6 +316,8 @@ class App extends Component {
 export default App;
 
 ```
+
+<br/>
 Nós podemos declarar uma biblioteca e importar os módulos expostos por esta. Todas estas features não funcionariam automaticamente dentro do Node.
 
 Vamos conhecer a utilidade de outro plugin do Babel: ES2015 preset.
@@ -307,18 +331,25 @@ Aula 1_Failed to compile
 Observe que ele apontou a falha de compilação no console.
 
 Apenas esses benefícios já fariam valer a pena usar o create-react-app, porém, mais adiante conheceremos outros benefícios. Veremos como o seguintes imports serão suportados:
+
+<br/>
 ```html
 
 import logo from './logo.svg';
 import './App.css';
 
 ```
+
+<br/>
 Conheceremos bem o que é feito pelo framework e ver que as coisas não acontecem magicamente no nosso código.
 
 
 <h2>Um pouco sobre webpack</h2>
 
 No vídeo anterior comentamos sobre o JSX, o Babel e outros elementos que vieram incorporado pelo create-react-app e que não seriam tão fáceis de serem configuradas manualmente. Encontramos alguns itens na versão mais nova do JavaScript no nosso código.
+
+<br/>
+
 ```html
 
 import React, { Component } from 'react';
@@ -343,6 +374,8 @@ class App extends Component {
 export default App;
 
 ```
+
+<br/>
 Lembre-se que se você não domina ainda JavaScript Avançados, temos uma série de cursos na Alura!
 
 Então, nós temos a sintaxe de import. Está é uma das maiores vantagens do React, ele permite criar boa parte do código usando sintaxe que será suportada, por exemplo, pelo Babel. Mas o diferencial é que instalamos o React como módulo do Node.Js - não foi necessário baixar o JavaScript. Após a importação, o seu código já funcionará "magicamente" no navegador.
@@ -361,6 +394,8 @@ O Babel irá transformar boa parte do código em JS que irá rodar no Node.Js. O
 Você pode ver mais visitando a página do Mozilla Develloper Network e ir na seção Export.
 
 Mesmo que o código do index.html seja convertido pelo Node, que não funcionará no navegador. No código teremos que importar logo.svg, que não é suportado em nenhuma versão do JS.
+<br/>
+
 ```html
 
 import React, { Component } from 'react';
@@ -371,6 +406,9 @@ import "./App.css";
 Observe que importamos CSS em um arquivo JS, tudo isso seria impossível, mas nós conseguiremos que ele funcione.
 
 Um detalhe ainda não citado, como estamos usando o JSX, a definição das classes que queremos no nosso HTML, precisam estar acompanhadas do className:
+<br/>
+
+
 ```html
 
 <div className="App">
@@ -483,7 +521,7 @@ Mas não queremos usar este arquivo.
 Este importe de CSS só será possível, porque o Webpack transforma o CSS em um código JS. Na documentação do JavaScript não existe nenhuma especificação que nos permita importar CSS.
 
 O arquivo que queremos importar é o pure-min.css.
-
+<br/>
 ```html
 
 import React, { Component } from 'react';
@@ -517,7 +555,7 @@ ReactComponents
 Vemos que a classe React tem um método chamado createClass, com ele podemos criar os nossos componentes.
 
 Se acessarmos o arquivo App.js, veremos que estamos criando um Component.
-
+<br/>
 ```html
 
 class App extends Component{
@@ -691,7 +729,7 @@ websocket
 Tudo o que é alterado no editor, ele já publicará as mudanças.
 
 Para nossa primeira página de cadastro, vamos mudar o texto do .
-
+23:54 08/04/2018
 ```html
 <h1> para "Cadastro de autores"</h1>
 < div id="main">
