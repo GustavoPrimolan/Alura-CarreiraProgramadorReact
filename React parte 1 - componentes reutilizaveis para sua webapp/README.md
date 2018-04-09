@@ -690,10 +690,10 @@ websocket
 
 Tudo o que é alterado no editor, ele já publicará as mudanças.
 
-Para nossa primeira página de cadastro, vamos mudar o texto do <h1> para "Cadastro de autores".
+Para nossa primeira página de cadastro, vamos mudar o texto do .
 
 ```html
-
+<h1> para "Cadastro de autores"</h1>
 < div id="main">
     <div className="header">
         <h1>Cadastro de autores</h1>
