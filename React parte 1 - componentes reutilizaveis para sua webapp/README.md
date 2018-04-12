@@ -3186,3 +3186,740 @@ Acabamos a parte de refatoração, agora, siga para os exercícios. Caso tudo te
 
 A seguir, aprenderemos ainda mais!
 
+<h2>Por que usamos um High Order Component?</h2>
+
+Quando decidimos isolar os componentes relativos ao cadastro do autor, fomos obrigados a criar um terceiro componente que contivesse os dois. Selecione o motivo de termos feito isso.
+R: Usamos o High Order Component para manter o estado compartilhado entre dois ou mais componentes. Dessa forma você tem mais componentes focados em visualização do que com lógica em si.
+
+Quando criamos dois componentes separados, também movemos o estado da lista para o componente de listagem de autores. Quando fizemos isso, o componente responsável pelo formulário do autor parou de ter acesso ao estado da listagem e, por consequência, também parou de poder invocar a função setState para atualizar esses dados.
+
+Para resolver isso criamos um terceiro componente, que chamamos de AutorBox que mantém o estado da listagem e só repassa para os seus componentes filhos. Essa é uma solução conhecida como High Order Components e muito praticada em projetos que utilizam o React. A ideia é que o estado fique sempre nos seus High Order Components e que os outros componentes fiquem apenas com a responsabilidade de montar a visualização em si.
+
+Completando, no momento que você retira a parte do AJAX do seu componente você acaba de dar a ele mais chances de ser reaproveitado em outras situações. Já que agora ele é baseado apenas em um JSON passado para ele, de onde vem acaba não sendo importante.
+
+<h2>Diminuindo o acoplamento entre componentes</h2>
+Quando criamos o nosso High Order Component, também criamos uma função que deveria ser chamado pelo componente de formulário para que ele pudesse notificar que existia uma nova listagem. Discutimos que essa solução, por mais que funcione, acaba gerando um acoplamento considerável entre os componentes. Selecione qual foi a nossa saída para diminuir esse acoplamento.
+
+R: Usamos uma biblioteca de Publish/Subscriber para facilitar a comunicação e diminuir o acoplamento.
+
+Para não ter esse vínculo forte entre os componentes, nós acabamos utilizando uma biblioteca de Publish/Subscriber. O objetivo é justamente ter um middleware onde os componentes podem se inscrever em busca de alguma mensagem. Por exemplo, o AutorBox se inscreveu para o evento para de atualização de listagem. Ele não sabe nem de onde vem esse evento, só está interessado no evento em si.
+
+Da mesma forma que alguém se inscreve(Subscriber), é necessário ter alguém que publique uma novo evento associado a algum objeto(Publisher). No nosso caso, o componente de formulário do autor, publica que uma nova listagem está disponível assim que um novo autor é inserido.
+
+Lembre que o objetivo não é deixar 100% desacoplado, até porque é necessário um nível de acoplamento, justamente para o sistema funcionar. O que precisamos é diminuir ele ao máximo e a abordagem de Publish/Subscriber é muito boa para isso.
+
+<h2>Isolando os comportamentos específicos do cadastro de autores</h2>
+
+Em primeiro lugar crie o arquivo Autor.js na pasta src do seu projeto. Com o arquivo aberto, escreva o seguinte código:
+
+```html
+
+import React, { Component } from 'react';
+import $ from 'jquery';
+import InputCustomizado from './componentes/InputCustomizado';
+import PubSub from 'pubsub-js';
+import TratadorErros from  './TratadorErros';
+
+class FormularioAutor extends Component {
+
+  constructor() {
+    super();    
+    this.state = {nome:'',email:'',senha:''};
+    this.enviaForm = this.enviaForm.bind(this);
+    this.setNome = this.setNome.bind(this);
+    this.setEmail = this.setEmail.bind(this);
+    this.setSenha = this.setSenha.bind(this);
+  }
+
+  enviaForm(evento){
+    evento.preventDefault();    
+    $.ajax({
+      url:'http://localhost:8080/api/autores',
+      contentType:'application/json',
+      dataType:'json',
+      type:'post',
+      data: JSON.stringify({nome:this.state.nome,email:this.state.email,senha:this.state.senha}),
+      success: function(novaListagem){
+        PubSub.publish('atualiza-lista-autores',novaListagem);        
+        this.setState({nome:'',email:'',senha:''});
+      }.bind(this),
+      error: function(resposta){
+        if(resposta.status === 400) {
+          new TratadorErros().publicaErros(resposta.responseJSON);
+        }
+      },
+      beforeSend: function(){
+        PubSub.publish("limpa-erros",{});
+      }      
+    });
+  }
+
+  setNome(evento){
+    this.setState({nome:evento.target.value});
+  }
+
+  setEmail(evento){
+    this.setState({email:evento.target.value});
+  }  
+
+  setSenha(evento){
+    this.setState({senha:evento.target.value});
+  }  
+
+    render() {
+        return (
+            <div className="pure-form pure-form-aligned">
+              <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
+                <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome} label="Nome"/>                                              
+                <InputCustomizado id="email" type="email" name="email" value={this.state.email} onChange={this.setEmail} label="Email"/>                                              
+                <InputCustomizado id="senha" type="password" name="senha" value={this.state.senha} onChange={this.setSenha} label="Senha"/>                                                                      
+                <div className="pure-control-group">                                  
+                  <label></label> 
+                  <button type="submit" className="pure-button pure-button-primary">Gravar</button>                                    
+                </div>
+              </form>             
+
+            </div>  
+
+        );
+    }
+}
+
+class TabelaAutores extends Component {
+
+    render() {
+        return(
+                    <div>            
+                      <table className="pure-table">
+                        <thead>
+                          <tr>
+                            <th>Nome</th>
+                            <th>email</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {
+                            this.props.lista.map(function(autor){
+                              return (
+                                <tr key={autor.id}>
+                                  <td>{autor.nome}</td>
+                                  <td>{autor.email}</td>
+                                </tr>
+                              );
+                            })
+                          }
+                        </tbody>
+                      </table> 
+                    </div>                     
+        );
+    }
+}
+
+export default class AutorBox extends Component {
+
+  constructor() {
+    super();    
+    this.state = {lista : []};    
+  }
+
+  componentDidMount(){  
+    $.ajax({
+        url:"http://localhost:8080/api/autores",
+        dataType: 'json',
+        success:function(resposta){    
+          this.setState({lista:resposta});
+        }.bind(this)
+      } 
+    );          
+
+    PubSub.subscribe('atualiza-lista-autores',function(topico,novaLista){
+      this.setState({lista:novaLista});
+    }.bind(this));
+  }   
+
+
+  render(){
+    return (
+      <div>
+        <FormularioAutor/>
+        <TabelaAutores lista={this.state.lista}/>
+
+      </div>
+    );
+  }
+}
+
+```
+-------------------------------------------------------------------------------------
+<h1>Seção 06 - React Router e o suporte a navegação</h1>
+
+<h2>Configuração React router</h2>
+
+Na última aula, trabalhamos com a refatoração do nosso sistema. Nós isolamos o componente de autor, criamos um arquivo com várias classes que são específicas na parte de administração do autor - incluindo uma classe que representa o formulário e outra que representa a tabela com os dados. Temos o AutorBox que é o nosso wrapper e une os dois componentes citados. Tentamos manter nele tudo o que se refere ao estado compartilhado. Se estes não estivessem no AutorBox, cada um dos componentes teriam que se inscrever no evento para então, reagir a mudança de estado.
+
+Inclusive, a nossa última refatoração utilizou uma biblioteca que faz o "meio de campo" entre a mensageria, que publica a mensagem no tópico e que será recebida por componentes inscritos nos canais.
+
+Espero que o seu código esteja funcionando até aqui.
+
+Atualmente, acessamos o index do sistema no localhost:3000 e caímos no cadastro de autores. Esta deveria ser a nossa "Home" por enquanto.
+
+Home
+
+Mas nós precisamos incluir um cadastro de livros também, que será acessada ao clicarmos no link "Livros" no menu da lateral. Para isto, uma opção seria criar um novo arquivo na pasta raiz chamado livros.html. Poderíamos mover uma cópia do código do index.html para ele. O novo arquivo ficaria assim:
+
+```html
+
+<doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale-1">
+    <link rel="shortcut icon" href="./src/favicon.ico">
+    <title>React App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+
+```
+Após aproveitarmos o código, teríamos que encontrar uma forma de que ele chamasse um JavaScript relativo ao carregamento da tela de cadastro de livros. Nós vimos que não será possível fazer isso com o react-creact-app. Ele não nos permite ficar customizando, dando vários arquivos de entrada de navegação.
+
+Mas, se escrevermos na barra de endereço localhost:3000/livro.html, ele encontrará o nosso arquivo.
+
+arquivo livro
+
+Veremos, no entanto, que não haverá nenhuma alteração no código, incluindo o trecho referente ao bundle.js com todo o código que escrevemos junto em um único arquivo JavaScript, que será rodado no navegador.
+
+Mesmo que esta fosse uma solução possível, nós queremos uma Single-page app. Não queremos ficar recarregando a tela continuamente.
+
+Vamos analisar outro assunto. Trabalharemos com o index.js, que leva o nosso App.js. Atualmente, o index também leva o AutorBox. Adicionaremos por enquanto, o pseudocódigo LivroBox.
+```html
+
+<div id="main">
+    <div className="header">
+      <h1>Cadastro de Autores</h1>
+    </div>
+    <div className="content" id="content">
+      <AutorBox/>
+      <LivroBox/>
+    </div>
+</div>
+
+```
+Lembrando que o código desta maneira não funcionará!
+
+Mas se deixássemos o código da forma como está, ficaria confuso. Ora queremos que o AutorBox seja mostrado, ora queremos que o LivroBox seja exibido. Mesmo em um Single-page App precisaríamos ficar manipulando a URL, por exemplo, alterando o endereço depois da /:
+
+localhost:3000/autor
+
+localhost:3000/livro
+
+Buscaríamos uma forma de manipular o endereço da barra, sem necessariamente recarregar a página. Uma maneira é com a history api utilizada desde o HTML 5. A questão é: como o App.js saberia que ao trocarmos a URL, ora seria preciso mostrar o AutorBox, ora seria preciso mostrar o LivroBox? Ficaríamos em problemas.
+
+Os links do menu lateral teriam que disparar um JavaScript que mudasse a URL e carregasse na tela, o componente solicitado por nós. Ao clicarmos em "Livro", por exemplo, ele carregaria componente aos livros. Seria necessário escrever um código trabalhoso. O que estamos falando aqui é, em função da URL, mudar o componente. E nos casos em que a URL estivesse vazia, teríamos que definir o componente igualmente.
+
+Removeremos o LivroBox.
+
+O que de fato estamos falando é sobre Roteamento, queremos que o React tenha suporte para rotas. Esperamos que ao clicar no link, mude a URL do navegador e a tela seja alterada. O Angular tem um framework bastante completo e já oferece isso, enquanto o React não tem o roteamento pronto por padrão - ele lidará apenas com a View. Mas como é esperado que quem trabalhe com React, também entrará numa Single-page App, criaram um projeto que se integra perfeitamente chamado React Router. Nós iremos utilizá-lo agora.
+
+react router
+
+Atualmente, o react-router possui mais de 17 mil estrelas (até novembro de 2016) e está na versão 3.0.0.
+
+Projetos em JavaScript evoluem rapidamente, então, no momento em você for instalar, pode já ser uma versão diferente.
+
+No GitHub do React Router encontraremos um tutorial de como instalar. Nós já começaremos a trabalhar com ele.
+
+Para instalá-lo, usaremos o comando npm install --save react-router@3. Nós sempre passamos o argumento --save, para que ele altere o package.json e no fim do build do projeto, ele gere o pacote de instalação, o @x serve para especificar uma versão do pacote. O React Router está instalado. Se você quiser se certificar, poderá verificar se existe o arquivo react-router dentro da pasta node_modules. Agora, o que precisamos é começar a configurar as nossas rotas.
+
+Primeiramente, vamos configurar o arquivo index.html que exporta a classe App. No entanto, não queremos mais renderizar diretamente o componente <App />. Preferimos que seja renderizado um componente do roteador, no nosso caso, será o React Router - que é um componente do React. Logo, nós iremos importar dois componentes:
+
+```html
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import './index.css';
+import {Router,Route} from 'react-router';
+
+ReactDOM.render(
+  <Router>
+  </Router>,
+  document.getElementById('root')
+);
+
+```
+Precisamos especificar quem queremos importar e por isso, adicionamos o {Router,Route}. Em seguida definiremos as rotas do projeto.
+```html
+
+ReactDOM.render(
+  (<Router>
+    <Route path="/" component={App}/>
+    <Route path="/autor"/>
+    <Route path="/livro"/>
+  </Router>),
+  document.getElementById('root')
+);
+
+```
+Quando o endereço for padrão, ele terá uma outra propriedade chamada component, e queremos que seja renderizado o HTML que está linkado com o objeto exportado App. Se ele for uma classe do React, haverá uma classe dentro. Incluímos já o path para quando clicarmos em "autor" ou em "livro". Os caminhos ficarão vazios, porque não programamos ainda o "Livro".
+
+Em geral, é de boa prática adicionar parênteses () em casos que quebramos a linha. Desta forma, ficará visualmente mais simples compreender que se trata de uma única expressão.
+
+Por enquanto, nossa aplicação funciona normalmente no navegador, mas já veremos uma diferença na URL do campo de endereço.
+
+Diferença na URL
+
+Essa alteração foi feita, porque não autorizamos que ele mexa no history api. Ele está utilizando um estratégia mais antiga de adicionar hashbang (#), que é específica do Router.
+
+Até aqui nós já instalamos o Router e começamos a ver o que teremos que fazer.
+
+Mais adiante continuaremos com as configurações. Ainda precisaremos associar o Router para no encaminhar para a tela dos autores.
+
+
+
+
+<h2>Navegando com history API</h2>
+
+Nós já configuramos o Router para o momento em que acessamos o endereço padrão. Quando o endereço na barra de navegação finalizar com a barra, deverá acessar o componente padrão representado pela variável App, conforme definimos no index.js.
+```html
+
+
+ReactDOM.render(
+  (<Router>
+    <Route path="/" component={App}>
+    <Route path="/autor"/>
+    <Route path="/livro"/>
+  </Router>),
+  document.getElementById('root')
+);
+
+```
+Atualmente, ao clicarmos no link de "Autor", configuramos para que a URL seja alterada e ganhe uma hashbang (#).
+
+```html
+
+<div i="menu">
+    <div className="pure-menu">
+        <a className="pure-menu-heading" href="#">Company</a>
+        <ul className="pure-menu-list">
+            <li className="pure-menu-item"><a href="#" className="pure-menu-link">Home</a></li>
+            <li className="pure-menu-item"><a href="#" className="pure-menu-link">Autor</a></li>
+            <li className="pure-menu-item"><a href="#" className="pure-menu-link">Livro</a></li>
+        </ul>
+
+```
+O React Router atualmente lida desta maneira com os links e a URL no navegador. Por default, ele usará o hash history do navegador e modifica o que acontecerá na tela em função do que vem depois do #. Mas por enquanto, nada acontece na tela, porque não configuramos as rotas.
+
+Primeiramente, modificaremos a forma como a URL aparece no navegador. Esta forma é feia e a partir do HTML 5, a forma ficou depreciada. Nosso objetivo é que ao clicarmos no link de "Autor", apareça autor na URL também. Para isto, queremos que o React Router exporte uma outra classe que se chama browserHistory.
+```html
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import './index.css';
+import {Router,Route,browserHistory} from 'react-router';
+
+```
+Além do hash history, importamos o browserHistory. Também usaremos uma propriedade do Router chamada history na qual definiremos como queremos trabalhar com o histórico no React.
+```html
+
+ReactDOM.render(
+  (<Router history={browserHistory}>
+    <Route path="/" component={App}>
+    <Route path="/autor"/>
+    <Route path="/livro"/>
+  </Router>),
+  document.getElementById('root')
+);
+
+```
+Esta alteração já funcionará no navegador. Para que a URL contenha a palavra autor, vamos adicionar o componente AutorBox no caminho referente.
+```html
+<Route path="/autor"/ component={AutorBox}/>
+```
+
+Representamos toda parte de admin do autor. Depois, iremos importar o AutorBox.
+```html
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import AutorBox from './Autor';
+import './index.css';
+import {Router,Route,browserHistory} from 'react-router';
+
+```
+Definimos que o arquivo é o Autor.js, que especifica o AutorBox:
+```html
+
+export default class AutorBox extends Component {
+
+    constructor() {
+      super();
+      this.state = {lista : []};
+    }
+//...
+
+```
+Caso não tivéssemos utilizado apenas o AutorBox, não teríamos a opção de referenciar apenas um componente que mostraria a tela do autor. Podemos observar qual é a relevância do Box, a menos que você trabalhe apenas com um único elemento. Também não queremos que a página de cadastro de autores apareça por padrão. No arquivo App.js, vamos alterar a div main. Atualmente, ela está assim:
+```html
+
+<div id="main">
+    <div className="header">
+      <h1>Cadastro de Autores</h1>
+    </div>
+    <div className="content" id="content">
+      <AutorBox/>
+    </div>
+</div>
+
+```
+Vamos retirar o AutorBox e alterar o cabeçalho:
+```html
+
+<div id="main">
+    <div className="header">
+      <h1>Bem-vindo ao sistema</h1>
+    </div>
+    <div className="content" id="content">
+    </div>
+</div>
+
+```
+Bem vindo ao sistema
+
+Agora, queremos que o formulário de cadastro de autor apareça quando clicarmos em "Autor".
+
+A primeira solução que podemos fazer é substituir # por /autor.
+```html
+  <li className="pure-menu-item"><a href="/autor" className="pure-menu-link">Autor</a></li>
+```
+Ao clicarmos no link "autor", seremos levados para o formulário de cadastro.
+
+cadastro de autor
+
+Porém, temos dois pontos negativos: o primeiro é que ele está fazendo uma requisição real.
+
+requisição real
+
+O segundo aspecto é que o layout não foi mantido. Isto nós iremos resolver posteriormente. Vamos resolver o problema da requisição agora.
+
+Para que tudo funcione bem, nossos links deveriam disparar um evento JavaScript, que estivesse linkado com React Router. Ao clicarmos em um link, queremos alterar somente a URL do navegador, sem fazer a requisição e queremos que o novo componente seja renderizado. Para não precisarmos programar o JavaScript, faremos da seguinte forma: no arquivo App.js, importaremos um componente do React Router que recebe o nome de Link.
+```html
+
+import React, { Component } from 'react';
+import './css/pure-min.css';
+import'./css/side-menu.css';
+import {Link} from 'react-router';
+import AutorBox from './Autor';
+
+```
+Esta importação já irá gerar o link, com o evento do JavaScript linkado com o React Router. E nos links, substituiremos a href pelos Link to
+
+```html
+
+<div i="menu">
+    <div className="pure-menu">
+        <a className="pure-menu-heading" href="#">Company</a>
+        <ul className="pure-menu-list">
+            <li className="pure-menu-item"><Link to="#" className="pure-menu-link">Home</Link></li>
+            <li className="pure-menu-item"><Link to="#" className="pure-menu-link">Autor</Link></li>
+            <li className="pure-menu-item"><Link to="#" className="pure-menu-link">Livro</Link></li>
+        </ul>
+
+```
+Observe que também fechamos com o </Link>.
+
+Veremos o que acontecerá na nossa tela. Não queremos que exista um requisição real.
+
+sem requisição real
+
+Não teve uma requisição para /autor. É API que nos retorna o JSON de autores. Quando usamos o a href nos links, diversas requisições eram feitas, incluindo para autor e bundle.js, porque foi necessário carregar a página novamente. Por isso, usaremos o componente Link. Desta forma, só será feita uma requisição em "Autor", que irá consultar os dados.
+
+Veja como usar o Link foi fundamental. Nós já fizemos a relação entre a URL e o AutorBox e usamos a browserHistory. Nós aprimoramos mais a navegação.
+
+Mais adiante, resolveremos a parte de manter o layout.
+
+
+
+<h2>Rotas filhas e Index route</h2>
+
+Nós começamos a resolver o problema de rotas, já definimos os links que estão associados com os eventos do Router. Ao clicarmos em "Autor" no menu da lateral, não precisamos fazer uma requisição completa, ou seja, não precisamos buscar a tela inteira novamente. Era o que queríamos.
+
+Porém, estamos tendo um comportamento diferente do que esperávamos referente ao layout. Nós queríamos que o componente do "Autor" fosse renderizado como um filho do "Home" e tivesse o layout principal da aplicação. A boa notícia que o Router oferecesse isso pronto.
+
+Em vez de criarmos rotas independentes de "Autor" e "Livro". Agora, iremos associá-las com o componente principal: o App.
+
+Atualmente, o render do index.js está assim:
+```html
+ReactDOM.render(
+  (<Router history={browserHistory}>
+    <Route path="/" component={App}>
+    <Route path="/autor"/>
+    <Route path="/livro"/>
+  </Router>),
+  document.getElementById('root')
+);
+```
+Com a associação, o trecho ficará assim:
+```html
+ReactDOM.render(
+  (<Router history={browserHistory}>
+    <Route path="/" component={App}>
+      <Route path="/autor"/ component={AutorBox}>
+      <Route path="/livro"/>
+    </Route>
+  </Router>),
+  document.getElementById('root')
+);
+```
+Desta forma, as rotas de autor e livro se tornaram filhas do Route da aplicação, ou seja, /.
+
+Vamos fazer um último ajuste nos links do App.js. Adicionaremos o /, /autor e /livro:
+```html
+<div i="menu">
+    <div className="pure-menu">
+        <a className="pure-menu-heading" href="/">Company</a>
+        <ul className="pure-menu-list">
+            <li className="pure-menu-item"><Link to="#" className="pure-menu-link">Home</Link></li>
+            <li className="pure-menu-item"><Link to="/autor" className="pure-menu-link">Autor</Link></li>
+            <li className="pure-menu-item"><Link to="/livro" className="pure-menu-link">Livro</Link></li>
+        </ul>
+```
+
+No navegador, ao clicarmos em cada link, o endereço da URL será alterado corretamente, mas não surgirá o formulário.
+
+Mas até aqui, não resolveremos o nosso problema. Quando usamos as rotas filhas, elas são passadas como argumentos de um componente, no nosso caso é o App. Nós especificamos que quando for /autor será usado o AutorBox - que será passado como argumento do componente App. Sempre falamos em argumentos, ele estará relacionado com a variável props que herdamos no componente do React.
+
+Nós comumente usamos o props acompanhado do id e do label, por exemplo na seguinte linha do InputCustomizado.js:
+```html
+<label htmlFor={this.props.id}>{this.props.label}</label>
+```
+Os argumentos serão passados por quem estiver usando o nosso componente. Se o argumento for passado como atributo da tag, você usará com o nome. Mas no caso do index.js, nós temos uma rota que é filha de um outra rota. Isto é convertido para o component como um filho de um componente principal. E o React já é preparado para situações assim, permitindo o acesso dos filhos com o uso da propriedade children. Vamos adicioná-lo então:
+```html
+<div id="main">
+    <div className="header">
+      <h1>Bem-vindo ao sistema</h1>
+    </div>
+    <div className="content" id="content">
+      {this.props.children}
+    </div>
+</div>
+```
+
+Agora, quando clicarmos em "Autor" já visualizaremos o formulário.
+
+Formulario de cadastro de autor
+
+Não acontecerá o mesmo se clicarmos em "Livro", porque ainda não o associamos a nenhum componente. Mas a aplicação se aproxima do que esperamos.
+
+Então, é para isto que servem as rotas filhas, nos oferecendo a opção de associarmos componentes como filhos de outros componentes, e assim, vamos montando o layout como quebra-cabeça. Esta é a ideia do React.
+
+Ao receber um layout no Photoshop, sugiro que você escreva o HTML do layout para ter uma ideia completa e depois, minha sugestão é que ele seja quebrado em diferentes componentes para sua aplicação. Ou seja, pensar de fora para dentro e então, decida quem será filho de quem.
+
+Vamos cuidar um detalhe. Enquanto visualizamos a nossa tela, vemos a mensagem "Bem-vindo ao sistema". No entanto, queremos que no link "Autor" apareça "Cadastro de Autores". Então, teremos que associar o header do miolo da página ao componente.
+
+Logo, iremos mover a div onde foi incluída a mensagem Bem-vindo ao sistema para o AutorBox, no Autor.js.
+```html
+render(){
+  return (
+    <div>
+      <div className="header">
+        <h1>Cadastro de autores</h1>
+      </div>
+      <div className="content" id="content">
+        <FormularioAutor/>
+        <TabelaAutores lista={this.state.lista}/>
+      </div>
+    </div>
+  );
+}
+```
+No arquivo App.js, queremos que o Bem-vindo ao sistema se torne um novo componente que é a "Home". E a div onde a mensagem estava antes, basicamente, acessará o filho por meio do children.
+```html
+<div id="main">
+  {this.props.children}
+</div>
+```
+
+Em seguida, criaremos o Home.js.
+```html
+import React,{Component} from 'react';
+
+export default class Home extends Component{
+    render(){
+      return (
+
+        <div className="header">
+          <h1>Bem-vindo ao sistema</h1>
+        </div>
+        <div className="content" id="content">
+        </div>
+      );
+    }
+
+```
+Retornaremos o HTML relativo à Home. No caso, removemos o children porque ele não será necessário. Como o AutorBox não é mais referenciado no App.js, então não precisamos mais importá-lo.
+```html
+
+import React, { Component } from 'react';
+import './css/pure-min.css';
+import './css/side-menu.css';
+import {Link} from 'react-router';
+```
+
+Para não cair no mesmo erro anterior, o JSX é uma extensão do JavaScript que suporta XML como parte da linguagem. O JML só tem um pai, no nosso caso teremos que ter uma div que envolva as outras duas.
+
+```html
+
+import React,{Component} from 'react';
+
+export default class Home extends Component{
+    render(){
+      return (
+        <div>
+          <div className="header">
+            <h1>Bem-vindo ao sistema</h1>
+          </div>
+          <div className="content" id="content">
+          </div>
+        </div>
+      );
+    }
+}
+
+```
+No index.js, precisaremos importar o componente Home.
+```html
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import AutorBox from './Autor';
+import Home from './Home';
+import './index.css';
+import {Router,Route,browserHistory} from 'react-router';
+
+```
+A Home seria uma nova rota filha de /.
+```html
+
+<Route path="/" component={Home}/>
+
+```
+O ReactDOM.render() ficou da seguinte forma:
+```html
+
+ReactDOM.render(
+  (<Router history={browserHistory}>
+    <Route path="/" component={App}>
+      <Route path="/" component={Home}/>
+      <Route path="/autor"/>
+      <Route path="/livro"/>
+    </Route>
+  </Router>),
+  document.getElementById('root')
+);
+
+```
+Se estamos em /, ele já estará mapeado para App.
+
+Agora, queremos que o default seja a "Home". Pensando nisso, o módulo do IndexRoute será exportado no React Router. Iremos usá-lo com a Home.
+
+<IndexRoute component={Home}/>
+Com a alteração, o trecho ficará assim:
+```html
+
+ReactDOM.render(
+  (<Router history={browserHistory}>
+    <Route path="/" component={App}>
+      <IndexRoute component={Home}/>
+      <Route path="/autor"/>
+      <Route path="/livro"/>
+    </Route>
+  </Router>),
+  document.getElementById('root')
+);
+
+```
+Ele não irá mapear para nenhum path. O filho que será passado como argumento, será o que está no IndexRoute. Quando clicarmos em "Home" é o IndexRoute que será acessado também.
+
+Vamos aplicar este recursos diversas vezes quando estivermos desenvolvendo a aplicação com React.
+
+Pensando nas Features principais do React, nós chegamos quase ao fim do nosso curso. Vimos a respeito sobre o state, props, Router, como os componentes se comunicam... Já conseguimos fazer um infinidade de coisas.
+
+Aproveite para treinar sem que eu esteja executando o código ao mesmo tempo. Mais adiante, eu vou deixar o desafio de criar o cadastro do livro. Você fará esta parte contando apenas com a ajuda de um texto de apoio. Mas primeiro faça os exercícios do Router.
+
+<h2>Por que utilizamos o componente Link para navegação</h2>
+
+Durante a construção do menu de navegação foi utilizado o componente <Link> em vez de um simples <a>. Selecione o motivo dessa escolha.
+
+R: Usamos o componente Link porque ele já gera um a com um evento associado ao router, desta forma o clique não gera um reload da página.
+
+Utilizamos um <Link> porque já queremos gerar um <a> com o evento associado ao router. Quando clicamos nele, não queremos que seja feita uma nova requisição, queremos apenas que o conteúdo da página seja trocado pelo do componente associado com o link.
+
+
+<h2>Sobre a utilização de rotas filhas</h2>
+
+Selecione o motivo da utilização de rotas filhas dentro da nossa aplicação.
+R: 
+Utilizamos as rotas filhas porque precisamos que o html do componente associado a ela seja parte do html de outro componente.
+
+Quando deixamos as rotas como filhas diretas do Router o clique no link de navegação faz o react-router entender que ele deve trocar o conteúdo do elemento inteiro associado a ele, no caso a div com o id root. Na verdade precisamos apenas atualizar uma parte da tela, que já está associada com a rota "/". É justamente para este tipo de situação que usamos as rotas filhas. Repare que usamos a propriedade children, que serve justamente para a situação onde precisamos passar componentes como filhos de outros, para indicar o local que precisamos que o conteúdo da rota filha seja renderizado.
+
+
+<h2>Para saber mais: Utilizando o react-router 4</h2>
+
+Motivo da atualização do react-router
+Com a chegada do React Native o time do react-router evoluiu o projeto para que o projeto de rotas forneça suporte tanto para aplicações web que utilizam o react quanto para as aplicações mobile que forem utilizar o React Native. O problema para gente é que, para dar esse suporte, eles reescreveram o projeto de uma forma que nosso código com a versão 2 ou 3 não funciona mais. O objetivo deste exercício é fornecer os passos para você configurar seu projeto utilizando a última versão. Apenas lembre que os conceitos permanecem os mesmos, apenas a implementação é que vai ser diferente.
+
+Mão na massa
+Instalando as novas dependências
+O primeiro passo é instalar uma dependência chamada react-router-dom. Ele é a versão do react-router com foco no navegador. Acesse a pasta do seu projeto e rode o seguinte comando:
+
+npm install react-router-dom@4.1.1 --save
+Agora, acesse o arquivo package.json e remova a referência para o react-router antigo. Isso é opcional, mas estou sugerindo apenas para não gerar confusão no seu projeto.
+
+Alterações no código
+As nossas alterações vão ficar concentradas no arquivo index.js e também no app.js. Primeiro vou mostrar o código final e logo embaixo alguns detalhes importantes serão explicados. O arquivo index.js deve ficar com o seguinte conteúdo:
+
+
+```html
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import AutorAdmin from './Autor';
+import LivroAdmin from './Livro';
+import Home from './Home';
+import './index.css';
+import {BrowserRouter as Router, Route,Switch,Link} from 'react-router-dom';
+
+ReactDOM.render((
+        <Router>
+            <App>
+                    <Switch>            
+                        <Route exact path="/" component={Home}/>
+                        <Route path="/autor" component={AutorAdmin}/>
+                        <Route path="/livro" component={LivroAdmin}/>                
+                    </Switch>            
+            </App>
+        </Router>
+
+), document.getElementById('root'));
+
+```
+Já no arquivo app.js, apenas altere o import de import { Link } from 'react-router' para import { Link } from 'react-router-dom'.
+
+Agora vamos para as explicações :). O primeiro detalhe importante é que mudou a forma de fazermos as rotas aninhadas(nested routes). O Router recebe apenas um componente, que pode ser qualquer coisa. O fato primordial é que dentro desse componente exista alguma declaração de rotas, para que os endereços continuem funcionando. Perceba que foi justamente isso que fizemos quando passamos o componente App como filho de Router o Switch (que já vai ser explicado) como argumento da App.
+
+Um segundo ponto importante é a utilização do componente Switch. Poderíamos simplesmente deixar várias tag Route como parâmetro da nossa App, dessa forma as rotas seriam registradas e tudo funcionaria. O problema é que nesse caso queremos deixar claro que apenas uma das rotas vai ser acionada, o Switch serve justamente para garantir isso.
+
+Da forma que fizemos, mantemos exatamente o comportamento da versão anterior da nossa aplicação, só que usando a versão mais nova do router!
+
+----------------------------------------------------------------------------------------------------
+<h1>Seção 07 - Cadastro de um livro e uma revisão geral</h1>
+
+<h2>Listagem de Livros</h2>

@@ -13,7 +13,7 @@ class FormularioAutor extends Component {
         super();
 
         //SÓ PODE GUARDAR ESTADOS NO state, POIS É PADRÃO DO REACT
-        this.state = { lista: []};
+        this.state = { lista: [] };
 
         this.enviaForm = this.enviaForm.bind(this);
         this.setNome = this.setNome.bind(this);
@@ -39,16 +39,16 @@ class FormularioAutor extends Component {
                 //DISPARA UM AVISO GERAL DE novaListagem DISPONÍVEL
                 //PRIMEIRO PARÂMETRO É O TÓPICO QUE EU QUERO ATUALIZAR 
                 PubSub.publish('atualiza-lista-autores', novaListagem);
-                this.setState({nome:'', email:'', senha:''});
+                this.setState({ nome: '', email: '', senha: '' });
 
             }.bind(this),
             error: function (resposta) {
                 //3 IGUAIS COMPARA O TIPO TAMBÉM
-                if(resposta.status === 400){
+                if (resposta.status === 400) {
                     new TratadorErros().publicaErros(resposta.responseJSON);
                 }
             },
-            beforeSend: function(){
+            beforeSend: function () {
                 PubSub.publish("limpa-erros", {});
             }
 
@@ -70,6 +70,7 @@ class FormularioAutor extends Component {
 
     render() {
         return (
+
             <div className="pure-form pure-form-aligned">
                 <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
                     <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome} label="Nome" />
@@ -153,8 +154,8 @@ export default class AutorBox extends Component {
 
         //SUBSCRIBE
         //PRIMEIRO PARÂMETRO DA FUNÇÃO ANONIMA É O NOME DO TÓPICO E A SEGUNDA E A O ITEM QUE SERÁ ATUALIZADO
-        PubSub.subscribe('atualiza-lista-autores',function(topico, novaListagem){
-            this.setState({lista:novaListagem});
+        PubSub.subscribe('atualiza-lista-autores', function (topico, novaListagem) {
+            this.setState({ lista: novaListagem });
         }.bind(this));
     }
     //ESSA FUNÇÃO É EXECUTADA ANTES DO RENDER
@@ -165,8 +166,13 @@ export default class AutorBox extends Component {
     render() {
         return (
             <div>
-                <FormularioAutor/>
-                <TabelaAutores lista={this.state.lista} />
+                <div className="header">
+                    <h1>Cadastro de autores</h1>
+                </div>
+                <div className="content" id="content">
+                    <FormularioAutor />
+                    <TabelaAutores lista={this.state.lista} />
+                </div>
             </div>
         );
     }
