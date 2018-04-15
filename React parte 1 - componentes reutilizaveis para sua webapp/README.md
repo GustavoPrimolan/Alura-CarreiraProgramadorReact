@@ -3923,3 +3923,810 @@ Da forma que fizemos, mantemos exatamente o comportamento da versão anterior da
 <h1>Seção 07 - Cadastro de um livro e uma revisão geral</h1>
 
 <h2>Listagem de Livros</h2>
+
+Desafiamos você a implementar o cadastro de livros sozinho. Se você não tentou fazer, eu recomendo que você faça agora. Se você se estressar e a aplicação não funcionar, será um experiência positiva. Aprender errando é parte do processo. Tentar fazer para o livro o mesmo que fizemos no cadastro de autores, e ir encaixando as coisas. Caso você tenha tentado fazer e agora, está aqui para conferir se o que fez está correto, é positivo também. Veremos agora como implementar o cadastro de livros.
+
+O menu está funcionando, ao clicarmos em Home aparecerá a mensagem "Bem-vindo ao sistema" e quando clicarmos em "Autor", teremos o cadastro de autores. No entanto, quando clicamos em "Livro" ainda não aparecerá nada.
+
+Novamente, a sugestão é que você espere o fim da explicação para começar a programar.
+
+Em vez de começarmos a criar o arquivo do livro, e depois, escrever o formulário e a tabela do livro, começaremos pelo ponto em que queremos usar o componente. Como não temos ele pronto, será gerado o erro. Nós implementaremos o código com base no erro gerado. Acho que é uma maneira de criarmos o mínimo de código que seja o suficiente para termos a funcionalidade implementada.
+
+Temos a rota para o livro. Queremos que ao clicarem no link correspondente, que seja invocado o render do componente LivroBox que iremos criar. Nós não inventaremos o Box do nada. Usaremos o mesmo conceito de formulário e tabela para os autores. Também usaremos um Higher-Order component para manter o estado e usar os componentes para a View.
+
+Vamos importar o LivroBox do módulo Livro que escreveremos.
+```html
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import AutorBox from './Autor';
+import LivroBox from './Livro';
+import Home from './Home';
+import './index.css';
+import {Router,Route,browserHistory} from 'react-router';
+
+```
+Teremos um problema na hora de compilar, porque tentamos rodar um módulo que não existe ainda.
+
+Em seguida, criaremos o arquivo Livro.js dentro do src. Com o novo arquivo, já não teremos problema com a compilação.
+
+Nós vamos programar o Livro.js com base no que foi feito no Autor.js. Os imports copiaremos todos. Vamos gerar o arquivo baseado em copy and paste propositalmente. Trata-se de uma maneira padrão de aprendizado. Você começa copiando o código, até ir se familiarizando com o que é feito e o trabalho ficando mais fluido. Chegará o momento que você estará proficiente na tecnologia.
+
+Nós exportaremos como default a chalsse LivroBox, usando o mesmo nome citado em index.js. Iremos herdar de Component, porque ele precisa ser um componente do React. Depois, incluiremos o render() e o return().
+```html
+
+export default class LivroBox extends Component {
+  render(){
+    return (
+      <div>
+        <div className="header">
+          <h1>Cadastro de livros</h1>
+        </div>
+        <div className="content" id="content">
+        </div>
+      </div>
+    );
+  }   
+}
+
+```
+Inserimos a div com o header que levará o cabeçalho Cadastro de livros. Como não temos o formulário nem a tabela, deixamos o espaço vazio.
+
+Agora, quando clicarmos no link de "Livro", já veremos o cabeçalho "Cadastro de Autor".
+
+Cadastro de livro
+
+Vamos então, implementar a nossa tabela de livro.
+```html
+<div>
+  <div className="header">
+    <h1>Cadastro de livros</h1>
+  </div>
+  <div className="content" id="content">
+    <TabelaLivros lista={this.state.lista}/>
+  </div>
+</div>
+
+```
+Nós não vamos inventar e copiaremos a classe TabelaAutores do arquivo Autor.js.
+```html
+class TabelaAutores extends Component {
+
+  render() {
+    return(
+                  <div>
+                    <table className="pure-table">
+                      <thead>
+                        <tr>
+                          <th>Nome</th>
+                          <th>email</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          this.props.lista.map(function(autor){
+                            return (
+                              <tr key={autor.id}>
+                                <td>{autor.nome}</td>
+                                <td>{autor.email}</th>
+                              </tr>
+                            );
+                          })
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+          );
+        }
+
+```
+O seguinte trecho será adicionado abaixo do return() no Livro.js, com pequenos ajustes. Onde estava escrito TabelaAutores será TabelaLivros. E na tag <tr>, teremos o Título, o Preço e o Autor. Copiaremos a tabela, porque faremos para o "Livro" algo bem semelhante do que fizemos para o "Autor".
+```html
+import InputCustomizado from './componentes/InputCustomizado';
+import PubSub from 'pubsub-js';
+import TratadorErros from './TratadoErros';
+
+class TabelaLivros extends Component {
+
+  render() {
+    return(
+                  <div>
+                    <table className="pure-table">
+                      <thead>
+                        <tr>
+                          <th>Título</th>
+                          <th>Preço</th>
+                          <th>Autor</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          this.props.lista.map(function(livro){
+                            return (
+                              <tr key={livro.id}>
+                                <td>{livro.titulo}</td>
+                                <td>{livro.preco}</th>
+                                <td>{livro.autor.nome}</th>
+                              </tr>
+                            );
+                          })
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+          );
+        }
+
+```
+Na lista de livros, iremos adicionar o id, titulo e o preco e o autor.nome. A aplicação está rodando no localhost:8080/api/livros
+
+localhost
+
+A propriedade autor possui outro objeto, que representam as informações dos autores.
+
+O código compilou tranquilamente, mas não está aparecendo nada no navegador. No console, veremos a seguinte mensagem:
+
+Uncaught TypeError: Cannot read property 'lista' of null
+Ele não conseguiu ler a propriedade lista. De fato, ainda não a passamos para o componente de livros.
+
+Nós passamos um argumento para a tabela de livros, mas não inicializamos a variável listado estado. Então, estamos passando nulo e quando compilamos não é possível ler a lista.
+
+Precisaremos guardar a lista dentro da variável state do LivroBox. No Box do Autor.js, já temos o componentDidMount()
+```html
+
+constructor() {
+  super();
+  this.state = {lista : []};
+}
+componentDidMount(){
+  $.ajax({
+      url:"http//localhost:8080/api/autores",
+      dataType: 'json',
+      success:function(resposta){
+        this.setState = ({lista:resposta});
+      }.bind(this)
+    }
+  );
+
+  PubSub.subscribe('atualiza-lista-autores', function(topico,novaLista){
+    this.setState({lista:novaLista});
+  }.bind(this));
+}
+```
+Vamos copiar este trecho do constructor() até o PubSubpara o Livro.js. Faremos algumas adaptações. A URL que iremos buscar será de livros, também iremos nos inscrever no evento atualiza-lista-livros
+```html
+export default class LivroBox extends Component {
+constructor() {
+  super();
+  this.state = {lista : []};
+}
+componentDidMount(){
+  $.ajax({
+      url:"http//localhost:8080/api/livros",
+      dataType: 'json',
+      success:function(resposta){
+        this.setState = ({lista:resposta});
+      }.bind(this)
+    }
+  );
+
+  PubSub.subscribe('atualiza-lista-livros', function(topico,novaLista){
+    this.setState({lista:novaLista});
+  }.bind(this));
+}
+
+//...
+```
+Com isso, já conseguiremos visualizar a lista na página da aplicação.
+
+Cadastro de livros
+
+Nós aqui, não fizemos nada de novo. Nossa tabela está funcionando e mais adiante implementaremos a parte de cadastro do livro.
+
+<h2>Cadastro de livros</h2>
+Com a listagem funcionando, nós temos que colocar o formulário de cadastro de livros.
+
+No return() acima da tabela, adicionaremos o FormularioLivro.
+
+```html
+
+render() {
+  return (
+    <div>
+      <div className="header">
+        <h1>Cadastro de livros</h1>
+      </div>
+      <div className="content" id="content">
+        <FormularioLivro/>
+        <TabelaLivros lista={this.state.lista}/>
+      </div>
+    </div>
+  );
+}
+
+```
+E copiaremos a classe do formulário criada para o autor, no Autor.js. Nós vamos usar quase as mesmas coisas, só mudaremos o necessário.
+
+Copiar o código não é a situação ideal. Se os formulários e listas estão muito parecidos, o ideal seria isolar o que é parecido e deixar parametrizado o que muda entre uma tela e outra. Nós já mostramos como isolar um componente de Input.
+
+Nosso objetivo é criar um novo cadastro, com base no que fizemos anteriormente. Dessa vez, você deve aproveitar para treinar e copiar o que aprendemos.
+```html
+
+class FormularioLivro extends Component {
+
+  constructor() {
+    super();
+    this.state = {titulo:'',preco:'',autorID:''};
+    this.enviaForm = this.enviaForm.bind(this);
+    this.setTitulo = this.setTitulo.bind(this);
+    this.setPreco = this.setPreco.bind(this);
+    this.setAutorId = this.setAutorId.bind(this);
+  }
+//...
+
+```
+Teremos que encontrar uma forma de encontrar os IDs dos autores.
+
+Lembre-se de que as funções declaradas na classe, vem com um this não definido por default. Por isso, adicionaremos o bind que irá definir que o this executado será o do React. Vamos ajustar o trecho do enviaForm.
+
+```html
+  enviaForm(evento){
+    evento.preventDefault();
+    $.ajax({
+      url:'http://localhost:8080/api/livros',
+      contentType:'application/json',
+      dataType:'json',
+      type:'post',
+      data: JSON.stringify({titulo:this.state.titulo,preco:this.state.preco,autorId:this.state.autorId}),
+      success: function(novaListagem){
+        PubSub.publish('atualiza-lista-livros',novaListagem);
+        this.setState({titulo:'',preco:'',autorId:''});
+      }.bind(this),
+      error: function(resposta){
+        if(resposta.status === 400) {
+          new TratadorErros().publicaErros(resposta.responseJSON);
+        }
+  },
+  beforeSende:function(){
+      PubSub.publish("limpa-erros",{});
+  }
+});
+
+}
+
+```
+
+//...
+Em todos os pontos que havia nome, substituímos por Titulo. Onde havia email substituímos por preco e onde havia senha substituímos por autorId. Vamos testar o código e se der erro, nós iremos fazer os ajustes necessários.
+```html
+
+setTitulo(evento){
+  this.setState({Titulo:evento.target.value});
+}
+
+setPreco(evento){
+  this.setState({preco:evento.target.value});
+}
+
+setAutorId(evento){
+  this.setState({autorId:evento.target.value});
+}
+Faremos alterações no render() também:
+
+render() {
+    return (
+        <div className="pure-form pure-form-aligned">
+        <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
+          <InputCustomizado id="titulo" type="text" name="titulo" value={this.state.titulo} onChange={this.setTitulo} label="Título"/>                                              
+          <InputCustomizado id="Preco" type="text" name="preco" value={this.state.preco} onChange={this.setPreco} label="Preço"/>                                              
+          <InputCustomizado id="autorId" type="text" name="autorId" value={this.state.autorId} onChange={this.setAutorId} label="AutorId"/>         
+          <div className="pure-control-group">                                 <label></label>
+            <button type="submit" className="pure-button pure-button-primary">Gravar</button>                        
+          </div>
+      )
+}
+
+```
+Vamos testar o nosso formulário:
+
+Cadastro de livros 3
+
+Quando clicamos em "Gravar", precisamos que todos os campos estejam preenchidos. Mas um dos campos que colocamos é o "AutorId". E não faz sentido que o nosso usuário saiba o Id do autor. Geralmente, a terceira informação é relativa a outro cadastro do sistema. A maioria dos sistemas coloca um select com um combo box para que o usuário possa escolhar o nome do autor que estará associado ao ID. É o que faremos agora.
+
+Em vez de termos o InputCustomizado, iremos substitui-lo por im select do autorId. Quando algo for selecionado pelo usuário, queremos que seja chamado o evento setAutorId. Também usaremos um option, com o valor em branco por enquanto, pedindo que a pessoa Selecione autor. Para que o combo box esteja alinhado, precisamos da mesma marcação no InputCustomizado usado Livro.js, por isso, adicionaremos uma div e uma label.
+```html
+
+<div className="pure-control-group">
+<label htmlFor={this.props.id}>{this.props.label}</label>
+  <select name="autorId" onChange={this.setAutorId}>
+      <option value="">Selecione autor</option>
+  </select>
+</div>
+
+```
+Com as alterações, o trecho ficará assim:
+
+```html
+render() {
+    return (
+        <div className="pure-form pure-form-aligned">
+        <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
+          <InputCustomizado id="titulo" type="text" name="titulo" value={this.state.titulo} onChange={this.setTitulo} label="Título"/>                                              
+          <InputCustomizado id="Preco" type="text" name="preco" value={this.state.preco} onChange={this.setPreco} label="Preço"/>                                              
+          <div className="pure-control-group">
+          <label htmlFor={this.props.id}>{this.props.label}</label>
+            <select name="autorId" id="autorID" onChange={this.setAutorId}>
+                <option value="">Selecione autor</option>
+            </select>
+          </div>  
+          <div className="pure-control-group">                                 
+           <label></label>
+            <button type="submit" className="pure-button pure-button-primary">Gravar</button>                        
+          </div>
+      )
+}
+
+```
+Mas faremos novas alterações na label. Ela foi escrita diretamente, mas o nosso componente não está acessando argumentos de outros. No caso, a nossa label será para um elemento que tem como ID o AutorId. O nome da label será Autor e adicionaremos o id antes do onChange.
+```html
+<label thmlFor="autorId">Autor</label>
+<select name="autorId" id="autorID" onChange={this.setAutorId}>
+```
+Cadastro de livros 4
+
+Agora, o cadastro de livros terá os campos e o campo box alinhados.
+
+Em seguida, precisaremos recuperar os autores que saem da nossa API. Isso, temos duas formas de fazer: dentro do componente se podemos fazer o AJAX, que recupera a lista de autores. Mas nós já dissemos anteriormente que é interessante manter o estado no Higher-Order Component e que criemos componentes que sejam mais especializados em pegar informações e gerar um elemento para a View. Em vez de termos uma variável state que vamos colocar a lista de autores, é mais interessante receber isto como argumento.
+```html
+
+<label htmlFor="autorId">Autor</label>
+<select name="autorId" id="autorID" onChange={this.setAutorId}>
+    <option value="">Selecione autor</option>
+    {
+        this.props.autores.map(function(autor){
+            return <option value={autor.id}>{autor.nome}</option>
+        })
+    }
+
+```
+Nós iremos gerar uma option em função do autor. As chaves nos indicam que estamos concatenando do código estático e o código dinâmico. Usamos outro option e que será justamente o ID do autor e queremos que seja exibido o autor.nome.
+
+Este componente é fácil de ser reaproveitado em outras situações, basta que seja passada a lista de autores. Se você quiser mudar a forma de recuperar a lista de autores, é fácil mudá-la sem resultar em perdas para o componente, porque ele se tornou mais isolado. É estratégico utilizar componentes especializados apenas em gerar um elemento para a View e usar menos componente que façam AJAX, cálculos e outros.
+
+Agora, precisamos da nossa lista de autores. Iremos passá-la como um argumento no FormularioLivro do return().
+```html
+
+render() {
+    return (
+      <div>
+        <div className="header">
+          <h1>Cadastro de livros</h1>
+        </div>
+        <div className="content" id="content">
+          <FormularioLivro autores={this.state.autores}
+      )
+}
+```
+A lista de autores está armazenada no state. Adicionaremos no JSON, variável autores, que está dentro do constructor().
+```html
+constructor() {
+  super();
+  this.state = {lista : [],autores:[]};
+}
+
+```
+Além do AJAX que recupera a lista de livros, também vamos ter um AJAX que recupera a lista de autores:
+```html
+
+componentDidMount(){
+  $.ajax({
+      url:"http//localhost:8080/api/livros",
+      dataType: 'json',
+      success:function(resposta){
+        this.setState = ({lista:resposta});
+      }.bind(this)
+    }
+  );
+  $.ajax({
+      url:"http//localhost:8080/api/autores",
+      dataType: 'json',
+      success:function(resposta){
+        this.setState = ({autores:resposta});
+      }.bind(this)
+    }
+  );
+
+```
+Quando chegar a resposta, queremos que o estado seja setado dizendo que a propriedade autores terá o valor da resposta.
+
+Cadastro de livros 5
+
+Vamos fazer um novo cadastro, em que teremos que selecionar um autor.
+
+Precisamos também limpar o campo do autor quando clicarmos em "Gravar". Até aqui, setamos o estado do autor como vazio, porém não programamos para que o select seja marcado em função do state. Faremos isto adicionando value no select.
+
+<select value={this.state.autorId} name="autorId" id="autorID" onChange={this.setAutorId}
+Após clicarmos em "Gravar", o campo de Autor voltará a exibir "Selecione autor".
+
+Cadastro de autor 6
+
+Para quem vem de outras linguagens, quando usamos o select e queremos sinalizar que uma opção foi marcada, em option teríamos que criar ifselected para indicar qual option deveria ficar marcada.
+
+Quando geramos um React element como o select, ele já será suportado pelo React para o Check box ou radio button, ao passarmos a propriedade value - no HTML normal, não poderíamos passar o value para o select, ele seria apenas para as options.
+
+No nosso caso, nós utilizamos o value no selection e ele automaticamente, escolheu a option correta. Esta é uma facilidade que o React nos oferece.
+
+Nós completamos nosso cadastro de livros, espero que você tenha conseguido tirar suas dúvidas. O código final pode ser baixado aqui.
+
+Faça os exercícios, e siga para a próxima aula, em que faremos algumas refatorações.
+
+
+
+---------------------------------------------------------------------------------------------------------------
+<h1>Seção 08 - Últimas melhorias e próximos passos</h1>
+
+<h2>Spread Operator, form mais fácil e build final</h2>
+
+
+Na aula passada, você foi desafiado a criar o cadastro de livro sozinho. Espero que tenha tentado e dado certo. É muito importante que você se aventure, fazendo o código do zero, para que você sinta que está dominando a tecnologia do React.
+
+Deixei para esta esta última aula, alguns pontos menores, para fazermos umas últimas refatorações e gerarmos a versão final do nosso projeto que você poderá publicar em qualquer servidor.
+
+Até aqui, os links do menu estão funcionando corretamente. Vamos analisar o InputCustomizado do formulário.
+
+```html
+
+render() {
+  return (
+          <div className="pure-form pure-form-aligned">
+              <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
+                <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome} label="Nome"/>                                              
+                <InputCustomizado id="email" type="email" name="email" value={this.state.email} onChange={this.setEmail} label="Email"/>                                              
+                <InputCustomizado id="senha" type="password" name="senha" value={this.state.senha} onChange={this.setSenha} label="Senha"/>                                                  
+               <div className="pure-control-group">                                  
+                  <label></label>
+                  <button type="submit" className="pure-button pure-button-primary">Gravar</button>                                    
+                </div>
+              </form>
+          </div>
+  );
+}
+
+```
+O nome dos argumentos (id, type, name, value e onChange), são todas propriedades que o JSX converte para o React. Não temos nenhuma propriedade no projeto que o React não suporta. Nós simplesmente repassamos as propriedades id, type, name. Quando o JSX pega a tag className e converte para a chamada do React, ele dará um createElement passando o id - que é um atributo da tag HTML. Nós já conversamos sobre as conversões feitas pelo React.
+
+Se todos os argumentos passados fossem repassados para outro componente, poderíamos descobrir que existe uma forma mais simples de realizar a ação. Então, no ECMAScript 6, entrou um novo operador chamado Spread operator. Você pode consultar mais a respeito na documentação. Nela encontraremos a explicação a aplicação do Spread Operator, quando usar arrays.
+
+Spreed operator
+
+No nosso contexto do React, o JSX teve a liberdade de implementar o Spread Operator. Veremos agora como utilizá-lo. Nós queremos repassar todas as informações para o próximo componente. No caso do JavaScript puro, estaríamos falando de repassar para uma função.
+
+Em seguida, vamos trabalhar com o InputCustomizado.js.
+```html
+
+render() {
+    return (
+      <div className="pure-control-group">
+        <label htmlFor={this.props.id}>{this.props.label}</label>
+        <input id={this.props.id} type={this.props.type} name={this.props.name} value/>
+        <span className="error">{this.state.msgErro}</span>
+      </div>
+      )
+};
+
+```
+Nós vamos apagar o código dentro do input e informaremos que vamos trabalhar com um código dinâmico usando o ..., que é o Spread que comentamos.
+
+```html
+<input {...this.props}/>
+```
+Nós repassamos tudo o que está no JSON props.
+
+Quando usamos o Spread, significa que queremos "espalhar", no caso, espalhar as informações do this.propspara a forma antiga que seria id={this.props.id}. Nós poderíamos incluir novas propriedades se elas existissem. A linha ficaria assim:
+```html
+<input {...this.props} novaPropriedade/>
+```
+
+Mas por enquanto, o trecho do nosso código ficou assim:
+```html
+
+render() {
+    return (
+      <div className="pure-control-group">
+        <label htmlFor={this.props.id}>{this.props.label}</label>
+        <input {...this.props}/>
+        <span className="error">{this.state.msgErro}</span>
+      </div>
+      )
+};
+
+```
+Nosso código será compilado corretamente e o cadastro funcionará perfeitamente.
+
+Cadastro de autores funcionando
+
+A vantagem de termos modularizado o input é que com a alteração, ele será válido tanto para o cadastro de autor como o de livros.
+
+Agora veremos um segundo ponto. No cadastro do autor, temos um formulário com três campos.
+```html
+constructor() {
+  super();
+  this.state = {nome:'',email:'',senha:''};
+  this.enviaForm = this.enviaForm.bind(this);
+  this.setNome = this.setNome.bind(this);
+  this.setEmail = this.setEmail.bind(this);
+  this.setSenha = this.setSenha.bind(this);
+}
+
+```
+Para cada campo, criamos uma função na classe, que receberá as informações preenchidas no formulário. Isto funcionou na nossa aplicação, mas e se ela tivesse 10 campos. E se tivermos diversos formulários - o que de fato, pode acontecer. Para cada campo será necessário criar uma função dentro da classe.
+
+Então, vamos fazer uma melhoria. Independente do campo, criaremos a função salvaAlteracao(), onde teremos o nomeInput que será alterado e o evento. E substituiremos as três funções, por um único setState com o nome do input. O salvaAlteracao será adicionado antes do salvaAlteracao.
+```html
+salvaAlteracao(nomeInput,evento){
+  this.setState({nome:evento.target.value});
+}
+```
+No caso, estamos alterando o nome da propriedade que estava no nosso estado.
+```html
+enviaForm(evento){
+    evento.preventDefault();    
+    $.ajax({
+      url:'http://localhost:8080/api/autores',
+      contentType:'application/json',
+      dataType:'json',
+      type:'post',
+      data: JSON.stringify({nome:this.state.nome,email:this.state.email,senha:this.state.senha}),
+      success: function(novaListagem){
+        PubSub.publish('atualiza-lista-autores',novaListagem);        
+        this.setState({nome:'',email:'',senha:''});
+      }.bind(this),
+      error: function(resposta){
+        if(resposta.status === 400) {
+          new TratadorErros().publicaErros(resposta.responseJSON);
+        }
+      },
+      beforeSend: function(){
+        PubSub.publish("limpa-erros",{});
+      }      
+    });
+  }
+```
+Usamos o mesmo name no input para não resultar em confusão.
+
+Em seguida, vamos fazer um pequena alteração no setState do salvaAlteracao:
+```html
+salvaAlteracao(nomeInput,evento){
+  this.setState({nomeInput:evento.target.value});
+}
+```
+Usaremos agora, o nomeInput.
+
+Vamos criar um novo campo.
+```html
+
+salvaAlteracao(nomeInput,evento){
+  var campo = {};
+  campo['qqpropriedade'] = evento.target.value;
+  this.setState({nomeInput:evento.target.value});
+}
+```
+Uma outra forma de definir propriedade no JSO, é usar os colchetes ([]) e dentro passar um string. Usamos o qqpropriedade. A vantagem de usar a sintaxe do colchetes é que podemos incluir dentro deles uma propriedade dinâmica. Por exemplo, poderíamos usar a propriedade nomeInput.
+```html
+salvaAlteracao(nomeInput,evento){
+  var campo = [];
+  campo[nomeInput] = evento.target.value;
+  this.setState(campo);
+}
+```
+Ou ainda:
+```html
+salvaAlteracao(nomeInput,evento){
+  var campo = [];
+  campo[nomeInput] = evento.target.value;
+  this.setState({[nomeInput]:evento.target.value});
+}
+```
+No fim, usaremos outro nome para a variável: campoSendoAlterado.
+```html
+salvaAlteracao(nomeInput,evento){
+  var campoSendoAlterado = [];
+  campoSendoAlterado[nomeInput] = evento.target.value;
+  this.setState(campoSendoAlterado);
+}
+```
+Como apagamos as outras funções, também não fará mais sentido ficarmos com o setNome, setEmail e setSenha no constructor(). Mas adicionaremos o salvaAlteracao.
+```html
+class FormularioAutor extends Component {
+
+  constructor() {
+    super();    
+    this.state = {nome:'',email:'',senha:''};
+    this.enviaForm = this.enviaForm.bind(this);
+    this.salvaAlteracao = this.salvaAlteracao.bind(this);
+  }
+
+```
+Fizemos o bind apenas com o this, no entanto, no salvaAlteracao queremos receber o evento e p nomeInput. Teremos que pensar em algo bem avançado no JavaScript. Queremos dizer que quando rodarmos o salvaAlteracao queremos informar que o this usado no bind() será do React e que a função receberá um outro argumento, por exemplo, a propriedade nome:
+
+this.salvaAlteracao = this.salvaAlteracao.bind(this,nome);
+Porém, não poderíamos criar uma outra linha semelhante que usasse como argumento do bind() o email.
+
+```html
+this.salvaAlteracao = this.salvaAlteracao.bind(this,nome);
+this.salvaAlteracao = this.salvaAlteracao.bind(this,email);
+```
+
+Então, precisamos que o bind() seja realizado no exato momento em que os dados são adicionados nos campos do formulário. Faremos isto no InputCustomizado, ainda no arquivo Autor.js:
+```html
+render() {
+      return (
+          <div className="pure-form pure-form-aligned">
+            <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
+              <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome} label="Nome"/>                                              
+              <InputCustomizado id="email" type="email" name="email" value={this.state.email} onChange={this.setEmail} label="Email"/>                                              
+              <InputCustomizado id="senha" type="password" name="senha" value={this.state.senha} onChange={this.setSenha} label="Senha"/>                                                                      
+              <div className="pure-control-group">                                  
+                <label></label>
+                <button type="submit" className="pure-button pure-button-primary">Gravar</button>                                    
+              </div>
+            </form>             
+
+          </div>  
+
+      );
+```
+
+Agora, em vez de chamarmos o setNome iremos associar o onChange do input com a função salvaAlteracao. Faremos o bind() com o this do React e passaremos o argumento do nome.
+```html
+  <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.salvaAlteracao.bind(this,'nome')} label="Nome"/>
+```
+Quando o onChange for chamado no campo "Nome", será chamado o salvaAlteracao.
+
+campo nome
+
+O campo nome está se comportando como era esperado, ao digitarmos os dados, os caracteres estão sendo mantidos.
+
+Faremos o mesmo com demais campos.
+```html
+render() {
+      return (
+          <div className="pure-form pure-form-aligned">
+            <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
+              <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome} label="Nome"/>                                              
+              <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.salvaAlteracao.bind(this,'email')} label="Email"/>                                 
+              <InputCustomizado id="nome" type="text" name="nome" value={this.state.nome} onChange={this.salvaAlteracao.bind(this,'senha')} label="Senha"/>                                                                    
+              <div className="pure-control-group">                                  
+                <label></label>
+                <button type="submit" className="pure-button pure-button-primary">Gravar</button>                                    
+              </div>
+            </form>             
+
+          </div>  
+
+      );
+
+```
+todos os campos funcionando 
+
+Agora, todos os campos se comportam da mesma forma e os dados são gravados corretamente.
+
+O código do nosso formulário está mais simples. Esta parte ficou para o final, para ficar mais claro quando abordássemos temas específicos do JavaScript ou do React. Mas o nosso sistema já está funcionando.
+
+Nós já usamos o Spreed Operator para facilitar a ação de pegar os argumentos, criamos uma função que lida com qualquer quantidade de inputs do seu formulário, ao montarmos o JSON dinamicamente.
+
+Para finalizarmos, veremos como rodar o seu projeto. Da forma como foi feita, o projeto rodou localmente, mas e quando for para a produção? Para isto, o create-react-app possui uma tarefa pronta de build para gerarmos o pacote final.
+
+build
+
+No Terminal, dentro da pasta raiz do projeto, usaremos o seguinte comando:
+
+Alura-Azul:cdc-admin alura$ npm run build
+Com isso, o creact react app ira gerar o pacote final.
+
+npm run build
+
+Ele nos informa que está gerando um built otimizado para a produção. Ele gerou uma nova pasta chamada build que contem o projeto.
+
+pasta build
+
+Ele criou o index.html que deixou apenas o código, sem os espaços.
+```html
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="shortcut icon" href="/favicon.icon?fd73a6eb"><title>React App</title><link href="/static/css/main.2a1ac942.css" rel="stylesheet"></head><body><div id="root"></div><script type="text/javascript" src="/static/js/main.6ba6c4e9.js"></script></body></html>
+```
+Observe que ele importou um arquivo JS da pasta static, que possui o nosso projeto.
+
+projeto
+
+Ele gera também um arquivo sourcemap para o caso da sua aplicação deixar de funcionar, ele nos permite identificar o erro no console do navegador.
+
+source map
+
+Ele também gerou o CSS do projeto:
+
+css do projeto
+
+Este é o build do nosso projeto.
+
+Ele nos sugere que se formos rodar o projeto direto de um servidor que já vem pronto no Node.js, podemos instalar o pushstate-server.
+
+pushstate-server
+
+Após o servidor estar instalado, basta rodar apontando para a pasta que tem o pacote final. Nós estamos usando um servidor escrito em JS que roda no Node.js, mas você tem a liberdade de rodar onde quiser.
+
+Como eu instalei global, ele estará dentro do node_modules.
+
+Alura-Azul:cdc-admin alura$ ./node_modules/.bin/pushstate-server
+Vamos indicar para ele subir na porta 9000.
+
+versão final do projeto
+
+Usamos a versão final do projeto, que poderíamos empacotar e enviar para a produção utilizando o React.
+
+Chegamos a final da nossa jornada, ficou para o fim a parte de empacotarmos o projeto, espero que você tenha gostado do curso.
+
+Mostramos o suficiente para você já começar a fazer as suas aplicações com o React. Ainda existe muito mais para aprender sobre o que pode ser feito com o React. Mas você já possui ferramentas para seguir desbravando este mundo.
+
+Uma última dica: existe um projeto chamado React Toobox.
+
+React Toolbox
+
+Como o React possui diversos componentes, o React TollBox que possui diversos componentes que levam o estilo de design proposto pelo Google, o Material Design.
+
+Toolbox components
+
+Você encontrará diversos componente que seguem este design.
+
+Outro site que disponibiliza componentes é o JS Coach.
+
+Coach React
+
+Pesquise, experimente com um próximo projeto, use o React se for necessário.
+
+Dê uma olhada nas explicações extras da aula. Até o próximo curso!
+
+
+Preparando para produção
+Agora que já estamos no fim do nosso projeto, vamos gerar o necessário para colocá-lo em produção. Isso não poderia ser mais fácil! Entre na pasta do projeto e rode o seguinte comando: npm run build. Lembre que essa é uma tarefa que já vem pronta, oferecida pelo create-react-app.
+
+Uma pasta, chamada build, foi gerada. Você pode usar a infraestrutura que quiser para rodar essa versão do projeto. O conteúdo da pasta é formado por HTML, CSS e Javascript, qualquer servidor é capaz de servir isso. Aqui no treinamento, vamos usar um projeto chamado pushstate-server, que é escrito em Javascript e roda sobre o Node.js. Siga os seguintes passos:
+
+De dentro da pasta do seu projeto, rode npm install pushstate-server
+Agora, execute o seguinte comando: ./node_modules/.bin/pushstate-server build
+Caso você esteja no windows, vai rodar o comando da seguinte maneira: node node_modules/.bin/pushstate-server build
+Por default ele vai ter subido o servidor local na porta 9000, basta que você acesse http://localhost:9000
+
+<h2>Para saber mais: O que foi gerado para a gente?</h2>
+Descobrindo tudo que ficou escondido até agora
+A ideia agora é que a gente tente dar uma olhada em tudo que o create-react-app escondeu para a gente. Para você não mexer no seu projeto do curso, faça o seguinte:
+
+Acesse o projeto no github => https://github.com/asouza/projeto-react-alura
+Aí você vai na sua máquina e realiza o clone do projeto ou você baixa direto pelo botão do github.
+É importante ter outra versão do projeto, porque uma vez que ejetarmos a configuração, não poderemos voltar atrás. Uma vez que o projeto estiver baixado, entre na pasta dele e rode a seguinte sequência de comandos:
+
+npm install (para instalar as dependências do projeto)
+sudo npm run eject (comando pronto do create-react-app para "ejetar" a configuração escondida)
+A sugestão de rodar o comando sudo serve para usuários que estejam com Linux ou Mac e tenham instalado o Node como super usuário. Caso você esteja no Windows ou não tenha instalado como root, o sudo não é necessário.
+
+Analisando o que foi gerado
+Agora que a configuração está toda no seu projeto, podemos verificar que o projeto continua rodando. De dentro da pasta do projeto baixado, rode o comando npm start. Independente do backend estar ativo, pelo menos a cara da aplicação deveria ser apresentada no navegador.
+
+Com tudo funcionando, vamos dar apenas uma olhada no que apareceu no nosso projeto.
+
+package.json
+Dê uma olhada no arquivo package.json e perceba que agora ele está consideravelmente maior. Todas as dependências que estavam escondidas, agora estão adicionadas lá como dependências de desenvolvimento. Perceba que não é pouca coisa!
+
+Pasta config
+Uma nova pasta foi gerada no projeto com o nome de config. Entrando nela, você vai encontrar arquivos de configuração de alguns projetos, abaixo segue a lista de alguns deles:
+
+Babel (que é nosso transpiler da versão mais nova do Javascript para a mais antiga)
+Eslint (configuração do verificador de boas práticas do nosso código)
+Webpack (ferramenta de build que pega nosso código javascript para servidor e transforma para Javascript que roda no navegador)
+Pasta scripts
+Nessa pasta existem dois scripts, que são utilizados para subir a nossa aplicação e para gerar o build final. Os nomes são até intuitivos, start e build. Apenas por curiosidade, dê uma olhada no código do start.jspara você ver o tanto de código que foi escrito para subir o servidor local com tudo certinho. Por exemplo, sempre que a gente sobe o servidor aparece a mensagem "Starting the development server...". Pode olhar, ela está lá no arquivo start.js.
+
+Sempre é bom ter noção do que está acontecendo
+Lembre que sempre é bom ser curioso e tentar descobrir o que está acontecendo por baixo dos panos, mas você não precisa ficar criando tudo do zero só porque sabe como fazer. Como você viu, conseguimos desenvolver nosso projeto sem precisar encostar nos detalhes escondidos e eu sugiro que você tente sempre ir pelo caminho da automação. Caso já existe uma ferramenta que realiza o trabalho de configuração para a gente, não fique com medo de usá-la! Isso vai facilitar a sua vida, permitindo que você foque em escrever código que gera valor para o seu cliente, o que não é o caso do código de setup.
+
+
